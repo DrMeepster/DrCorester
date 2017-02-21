@@ -23,7 +23,10 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 
-public class Util{
+public final class Util{
+	
+	private Util(){}
+	
 	public static void wrath(EntityLivingBase player, Achievement onWrath){
 		if(player instanceof EntityPlayer && onWrath != null){
 			((EntityPlayer)player).addStat(onWrath, 1);
@@ -150,5 +153,20 @@ public class Util{
 	public static ItemStack setNbtData(ItemStack stack, NBTTagCompound tag){
 		stack.setTagCompound(tag);
 		return stack;
+	}
+	
+	public static String insert(String in, String... replace){
+		for(int i = 0; i < replace.length; i++){
+			in = in.replaceAll("%" + (i + 1), replace[i]);
+		}
+		return in;
+	}
+	
+	public static String insert(String in, Object... replace){
+		String[] replaceStr = new String[replace.length];
+		for(int i = 0; i < replace.length; i++){
+			replaceStr[i] = replace[i].toString();
+		}
+		return insert(in, replaceStr);
 	}
 }

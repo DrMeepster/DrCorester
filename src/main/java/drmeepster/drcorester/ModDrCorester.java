@@ -3,6 +3,7 @@ package drmeepster.drcorester;
 import java.util.HashMap;
 
 import drmeepster.drcorester.proxy.IProxy;
+import drmeepster.drcorester.util.Util;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
@@ -20,12 +21,12 @@ public class ModDrCorester {
 	public static IProxy proxy;
 	public static final DamageSource DAMAGE_WRATH = new DamageSource("wrath").setDamageAllowedInCreativeMode().setDamageIsAbsolute();
 	private static HashMap<String, HashMap<String, Object>> modidList = new HashMap<>();
-	public static final String[] PROP_NAMES = {"moddidInName"};
-	public static final Object[] PROP_DEF_VALUES = {Boolean.TRUE};
+	public static final String[] PROP_NAMES = {"stringBeforeName", "namePrefix"};
+	public static final Object[] PROP_DEF_VALUES = {true, "%1_"};
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event){
-		
+
 	}
 	
 	@EventHandler
@@ -68,5 +69,9 @@ public class ModDrCorester {
 		}
 		modidList.put(modid, map);
 		return map;
+	}
+	
+	public static void getNamePrefix(String modid){
+		String pre = (String)getModProperty(modid, "namePrefix");
 	}
 }
