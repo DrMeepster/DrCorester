@@ -20,6 +20,8 @@ public class ModDrCorester {
 	public static IProxy proxy;
 	public static final DamageSource DAMAGE_WRATH = new DamageSource("wrath").setDamageAllowedInCreativeMode().setDamageIsAbsolute();
 	private static HashMap<String, HashMap<String, Object>> modidList = new HashMap<>();
+	public static final String[] PROP_NAMES = {"moddidInName"};
+	public static final Object[] PROP_DEF_VALUES = {Boolean.TRUE};
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event){
@@ -36,14 +38,35 @@ public class ModDrCorester {
 	
 	}
 	
-	public static HashMap getModProperties(String modid){
+	public static HashMap<String, Object> getModProperties(String modid){
 		if(modidList.containsKey(modid)){
-			
+			return modidList.get(modid);
+		}else{
+			return initMap(modid);
 		}
-		return null;
 	}
 	
-	private static void initMap(String modid){
-		
+	public static Object getModProperty(String modid, String property){
+		HashMap<String, Object> map = getModProperties(modid);
+		if(map.containsKey(property)){
+			return map.get(property);
+		}else{
+			return null;
+		}
+	}
+	
+	public static void setProperty(String modid, String propertyName, Object property){
+		HashMap<String, Object> map = getModProperties(modid);
+		map.put(propertyName, property);
+		modidList.put(modid, map);
+	}
+	
+	private static HashMap<String, Object> initMap(String modid){
+		HashMap<String, Object> map = new HashMap<>();
+		for(int i = 0; i < PROP_NAMES.length; i++){
+			map.put(PROP_NAMES[i], PROP_DEF_VALUES[i]);
+		}
+		modidList.put(modid, map);
+		return map;
 	}
 }
