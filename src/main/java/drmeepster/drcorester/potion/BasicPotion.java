@@ -19,12 +19,12 @@ public abstract class BasicPotion extends Potion implements IBasicObject<Potion>
 	private ResourceLocation icon;
 	private String id;
 
-	protected BasicPotion(boolean isBad, int color, String name, ResourceLocation icon, String modid) {
+	protected BasicPotion(boolean isBad, int color, String name, String modid) {
 		super(true, color);
 		this.setPotionName("effect." + name);
 		this.setRegistryName(modid, name);
 		this.setIconIndex(0, 0);
-		this.icon = new ResourceLocation(modid + ":textures/potion/");
+		icon = new ResourceLocation(modid + ":textures/potion/");
 		id = name;
 	}
 	
