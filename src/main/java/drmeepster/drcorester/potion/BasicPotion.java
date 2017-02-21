@@ -15,7 +15,6 @@ public abstract class BasicPotion extends Potion implements IBasicObject<Potion>
 	//copy these
 	//public static final String NAME = "";
 	//public static final int COLOR = 0x000000;
-	//public static final ResourceLocation RES_LOC = new ResourceLocation("bables:textures/potion/");
 	
 	private ResourceLocation icon;
 	private String id;
@@ -25,7 +24,7 @@ public abstract class BasicPotion extends Potion implements IBasicObject<Potion>
 		this.setPotionName("effect." + name);
 		this.setRegistryName(modid, name);
 		this.setIconIndex(0, 0);
-		this.icon = icon;
+		this.icon = new ResourceLocation(modid + ":textures/potion/");
 		id = name;
 	}
 	
