@@ -1,0 +1,14 @@
+[{
+  "modid": "drcorester",
+  "name": "Dr Corester",
+  "description": "A library for my mods.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["DrMeepster"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}]
