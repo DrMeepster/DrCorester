@@ -30,13 +30,6 @@ public abstract class BasicPotion extends Potion implements IBasicObject<Potion>
 	}
 	
 	@Override
-	public void performEffect(EntityLivingBase entity, int amplifier){
-		this.effect(entity, amplifier);
-	}
-	
-	protected abstract void effect(EntityLivingBase entity, int amplifier);
-	
-	@Override
 	public boolean isReady(int duration, int amplifier){
 		return true;
 	}
@@ -46,15 +39,6 @@ public abstract class BasicPotion extends Potion implements IBasicObject<Potion>
 		return false;
 	}
 	
-	/**
-	 * Called to draw the this Potion onto the player's inventory when it's active.
-	 * This can be used to e.g. render Potion icons from your own texture.
-	 *
-	 * @param x      the x coordinate
-	 * @param y      the y coordinate
-	 * @param effect the active PotionEffect
-	 * @param mc     the Minecraft instance, for convenience
-	 */
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void renderInventoryEffect(int x, int y, PotionEffect effect, Minecraft mc) {
@@ -64,22 +48,12 @@ public abstract class BasicPotion extends Potion implements IBasicObject<Potion>
 		}
 	}
 	
-	/**
-	 * Called to draw the this Potion onto the player's ingame HUD when it's active.
-	 * This can be used to e.g. render Potion icons from your own texture.
-	 *
-	 * @param x      the x coordinate
-	 * @param y      the y coordinate
-	 * @param effect the active PotionEffect
-	 * @param mc     the Minecraft instance, for convenience
-	 * @param alpha  the alpha value, blinks when the potion is about to run out
-	 */
 	@SideOnly(Side.CLIENT)
-    @Override
-    public void renderHUDEffect(int x, int y, PotionEffect effect, net.minecraft.client.Minecraft mc, float alpha){
-    	mc.getTextureManager().bindTexture(icon);
+    	@Override
+    	public void renderHUDEffect(int x, int y, PotionEffect effect, net.minecraft.client.Minecraft mc, float alpha){
+    		mc.getTextureManager().bindTexture(icon);
 		Gui.drawModalRectWithCustomSizedTexture(x + 3, y + 3, 0, 0, 18, 18, 18, 18);
-    }
+    	}
 	
 	@Override
 	public String getId(){
