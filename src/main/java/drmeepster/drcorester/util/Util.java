@@ -169,4 +169,12 @@ public final class Util{
 		}
 		return insert(in, replaceStr);
 	}
+	
+	public static <T> ArrayList<T> arrayToList(T[] array){
+		ArrayList<T> list = new ArrayList<>();
+		for(T t : array){
+			list.add(t);
+		}
+		return list;
+	}
 }

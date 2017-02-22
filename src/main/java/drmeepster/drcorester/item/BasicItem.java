@@ -1,5 +1,7 @@
 package drmeepster.drcorester.item;
 
+import drmeepster.drcorester.ModDrCorester;
+import drmeepster.drcorester.property.PropertyHandler;
 import drmeepster.drcorester.util.IBasicObject;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
@@ -13,7 +15,7 @@ public class BasicItem extends Item implements IBasicObject<Item>{
  
 	public BasicItem(String name, CreativeTabs tab, String modid) {
 		id = name;
-		setUnlocalizedName(modid + "_" + name);
+		setUnlocalizedName(PropertyHandler.getName(modid, name));
 		setRegistryName(name);
 		if(tab != null){
 			setCreativeTab(tab);
