@@ -1,5 +1,6 @@
 package drmeepster.drcorester.block;
 
+import drmeepster.drcorester.property.PropertyHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
@@ -17,7 +18,7 @@ public class BasicBlock extends Block implements IBasicBlock {
 		super(material, color);
 		setRegistryName(name);
 		itemBlock = new BasicItemBlock(this, modid);
-		setUnlocalizedName(modid + "_" + name);
+		setUnlocalizedName(PropertyHandler.getName(modid, name));
 		if(tab != null){
 			setCreativeTab(tab);
 		}

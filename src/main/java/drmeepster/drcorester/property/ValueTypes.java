@@ -10,6 +10,7 @@ public enum ValueTypes{
 	BOOLEAN(Boolean.class),
 	CHARACTER(Character.class),
 	STRING(Character.class);
+	//CLASS(Class.class);
 	
 	public final Class<?> type;
 	

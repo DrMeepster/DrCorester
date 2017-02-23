@@ -1,5 +1,6 @@
 package drmeepster.drcorester.potion;
 
+import drmeepster.drcorester.property.PropertyHandler;
 import drmeepster.drcorester.util.IBasicObject;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -21,7 +22,7 @@ public abstract class BasicPotion extends Potion implements IBasicObject<Potion>
 
 	protected BasicPotion(boolean isBad, int color, String name, String modid) {
 		super(true, color);
-		this.setPotionName("effect." + name);
+		this.setPotionName("effect." + PropertyHandler.getName(modid, name));
 		this.setRegistryName(modid, name);
 		this.setIconIndex(0, 0);
 		icon = new ResourceLocation(modid + ":textures/potion/");

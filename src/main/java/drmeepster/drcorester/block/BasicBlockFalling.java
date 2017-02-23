@@ -1,5 +1,6 @@
 package drmeepster.drcorester.block;
 
+import drmeepster.drcorester.property.PropertyHandler;
 import net.minecraft.block.BlockFalling;
 import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
@@ -16,7 +17,7 @@ public class BasicBlockFalling extends BlockFalling implements IBasicBlock {
 		super(material);
 		setRegistryName(name);
 		itemBlock = new BasicItemBlock(this, modid);
-		setUnlocalizedName(modid + "_" + name);
+		setUnlocalizedName(PropertyHandler.getName(modid, name));
 		if(tab != null){
 			setCreativeTab(tab);
 		}
