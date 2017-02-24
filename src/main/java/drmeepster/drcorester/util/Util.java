@@ -155,6 +155,10 @@ public final class Util{
 		return stack;
 	}
 	
+	/**
+	 * Crashes game.
+	 */
+	@Deprecated
 	public static String insert(String in, String... replace){
 		for(int i = 0; i < replace.length; i++){
 			in = in.replaceAll("%" + (i + 1), replace[i]);
@@ -162,6 +166,10 @@ public final class Util{
 		return in;
 	}
 	
+	/**
+	 * Crashes game.
+	 */
+	@Deprecated
 	public static String insert(String in, Object... replace){
 		String[] replaceStr = new String[replace.length];
 		for(int i = 0; i < replace.length; i++){

@@ -60,6 +60,6 @@ public class PropertyHandler {
 			return name;
 		}
 		String pre = (String)getModProperty(modid, "name");
-		return Util.insert(pre, modid, name);
+		return String.format(pre, modid, name);
 	}
 }
