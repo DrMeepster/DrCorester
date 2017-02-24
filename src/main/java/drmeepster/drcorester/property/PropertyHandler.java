@@ -9,7 +9,7 @@ public class PropertyHandler {
 	
 	private static HashMap<String, ArrayList<ValueWrapper>> modidList = new HashMap<>();
 	
-	private static ValueWrapper[] w = {new ValueWrapper("alterName", "true", BOOLEAN), new ValueWrapper("name", "%1_%2", STRING)};
+	private static ValueWrapper[] w = {new ValueWrapper("alterName", "true", BOOLEAN), new ValueWrapper("name", "%$1s_%$2s", STRING)};
 	public static final ArrayList<ValueWrapper> PROP_WRAPPERS = Util.arrayToList(w);
 	
 	public static ArrayList<ValueWrapper> getModProperties(String modid){
