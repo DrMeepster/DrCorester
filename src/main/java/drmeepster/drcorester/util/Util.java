@@ -2,11 +2,15 @@ package drmeepster.drcorester.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiPredicate;
+
+import com.google.common.collect.Maps;
 
 import drmeepster.drcorester.ModDrCorester;
 import drmeepster.drcorester.block.IBasicBlock;
 import drmeepster.drcorester.proxy.ClientProxy;
+import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
@@ -21,6 +25,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.FMLRelaunchLog;
 import net.minecraftforge.fml.relauncher.Side;
 
 public final class Util{
@@ -54,10 +59,10 @@ public final class Util{
 			register(((IBasicBlock)object).getItemBlock());
 		}
 		if(object instanceof ItemBlock){
-			System.out.println("The ItemBlock with block \"" + object.getName() + "\", has been registered");
+			FMLRelaunchLog.info("The ItemBlock with block, \"%s\", has been registered", object.getRegistryName().toString());
 			return object;
 		}
-		System.out.println("The object, \"" + object.getName() + "\", has been registered");
+		FMLRelaunchLog.info("The object, \"%s\", has been registered", object.getRegistryName().toString());
 		return object;
 	}
 	
@@ -155,29 +160,6 @@ public final class Util{
 		return stack;
 	}
 	
-	/**
-	 * Crashes game.
-	 */
-	@Deprecated
-	public static String insert(String in, String... replace){
-		for(int i = 0; i < replace.length; i++){
-			in = in.replaceAll("%" + (i + 1), replace[i]);
-		}
-		return in;
-	}
-	
-	/**
-	 * Crashes game.
-	 */
-	@Deprecated
-	public static String insert(String in, Object... replace){
-		String[] replaceStr = new String[replace.length];
-		for(int i = 0; i < replace.length; i++){
-			replaceStr[i] = replace[i].toString();
-		}
-		return insert(in, replaceStr);
-	}
-	
 	public static <T> ArrayList<T> arrayToList(T[] array){
 		ArrayList<T> list = new ArrayList<>();
 		for(T t : array){
@@ -185,4 +167,84 @@ public final class Util{
 		}
 		return list;
 	}
+	
+	public static <T> T[] varargsToArray(T... t){
+		return t;
+	}
+	
+	public static ItemStack[] stuffToItemstackArray(Object... recipeComponents){
+        String s = "";
+        int i = 0;
+        int j = 0;
+        int k = 0;
+        
+        try{
+        	if (recipeComponents[i] instanceof String[])
+        	{
+        		String[] astring = (String[])((String[])recipeComponents[i++]);
+
+        		for (String s2 : astring)
+        		{
+        			++k;
+        			j = s2.length();
+        			s = s + s2;
+        		}
+        	}
+        	else
+        	{
+        		while (recipeComponents[i] instanceof String)
+        		{
+        			String s1 = (String)recipeComponents[i++];
+        			++k;
+        			j = s1.length();
+        			s = s + s1;
+        		}
+        	}
+
+        	Map<Character, ItemStack> map;
+
+        	for (map = Maps.<Character, ItemStack>newHashMap(); i < recipeComponents.length; i += 2)
+        	{
+        		Character character = (Character)recipeComponents[i];
+        		ItemStack itemstack = null;
+
+        		if (recipeComponents[i + 1] instanceof Item)
+        		{
+        			itemstack = new ItemStack((Item)recipeComponents[i + 1]);
+        		}
+        		else if (recipeComponents[i + 1] instanceof Block)
+        		{
+        			itemstack = new ItemStack((Block)recipeComponents[i + 1], 1, 32767);
+        		}
+        		else if (recipeComponents[i + 1] instanceof ItemStack)
+        		{
+        			itemstack = (ItemStack)recipeComponents[i + 1];
+        		}
+
+        		map.put(character, itemstack);
+        	}
+
+        	ItemStack[] aitemstack = new ItemStack[j * k];
+        	
+        	for (int l = 0; l < j * k; ++l)
+        	{
+        		char c0 = s.charAt(l);
+
+        		if (map.containsKey(Character.valueOf(c0)))
+        		{
+        			aitemstack[l] = ((ItemStack)map.get(Character.valueOf(c0))).copy();
+        		}
+        		else
+        		{
+        			aitemstack[l] = null;
+        		}
+        	}
+        
+        	return aitemstack;
+        }catch(RuntimeException e){
+        	throw new RuntimeException("Caught exception in creating an ItemStack array, " + e.toString(), e);
+        }
+	}
+	
+	
 }

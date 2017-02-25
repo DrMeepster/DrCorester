@@ -27,8 +27,8 @@ public class NBTShapelessRecipe extends ShapelessRecipes {
 	 * @param tag The {@code NBTTagCompound} to give to {@code outputStack}.
 	 * @param condition The condition that needs to be true when given {@code inputNbt}. May be {@code null}.
 	 */
-	public NBTShapelessRecipe(List<ItemStack> inputList, ItemStack inputNbt, ItemStack outputStack, NBTTagCompound tag, Predicate<ItemStack> condition){
-		super(Util.setNbtData(outputStack, tag), inputList);
+	public NBTShapelessRecipe(ItemStack[] inputList, ItemStack inputNbt, ItemStack outputStack, NBTTagCompound tag, Predicate<ItemStack> condition){
+		super(Util.setNbtData(outputStack, tag), Util.arrayToList(inputList));
 		this.condition = condition;
 		this.inputNbt = inputNbt;
 	}
@@ -39,7 +39,7 @@ public class NBTShapelessRecipe extends ShapelessRecipes {
 	 * @param tag The {@code NBTTagCompound} to change the output {@code ItemStack} with.
 	 * @param condition The condition that needs to be true when given {@code outputStack}. May be {@code null}.
 	 */
-	public NBTShapelessRecipe(List<ItemStack> inputList, ItemStack outputStack, NBTTagCompound tag, Predicate<ItemStack> condition){
+	public NBTShapelessRecipe(ItemStack[] inputList, ItemStack outputStack, NBTTagCompound tag, Predicate<ItemStack> condition){
 		this(inputList, outputStack, outputStack, tag, condition);
 	}
 
@@ -50,13 +50,14 @@ public class NBTShapelessRecipe extends ShapelessRecipes {
 	
 	@Nullable
     public ItemStack getCraftingResult(InventoryCrafting inv){
-		NBTTagCompound tag = inputNbt.getTagCompound();
+		NBTTagCompound tag = null;
 		ItemStack stackOut = null;
 		
 		for(int i = 0; i < inv.getInventoryStackLimit(); i++){
 			ItemStack stack = inv.getStackInSlot(i);
 			if(stack != null && stack.isItemEqual(inputNbt)){
-				stackOut = new ItemStack(stack.getItem(), 1, stack.getItemDamage());
+				tag = stack.getTagCompound();
+				stackOut = new ItemStack(this.getRecipeOutput().getItem(), 1, stack.getItemDamage());
 				stackOut.setTagCompound(stack.getTagCompound());
 				break;
 			}
