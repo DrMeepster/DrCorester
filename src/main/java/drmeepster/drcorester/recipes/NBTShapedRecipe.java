@@ -17,8 +17,8 @@ import net.minecraft.world.World;
 public class NBTShapedRecipe extends ShapedRecipes {
 	
 	public final Predicate <ItemStack> condition;
-	
 	public final ItemStack inputNbt;
+	public final NBTTagCompound tag;
 	
 	/**
 	 * @param width Crafting grid width.
@@ -33,6 +33,7 @@ public class NBTShapedRecipe extends ShapedRecipes {
 		super(width, height, inputArray, Util.setNbtData(outputStack, tag));
 		this.condition = condition;
 		this.inputNbt = inputNbt;
+		this.tag = tag;
 	}
 	
 	/**
@@ -85,6 +86,6 @@ public class NBTShapedRecipe extends ShapedRecipes {
 				break;
 			}
 		}
-		return Util.addNbtData(stackOut, tag);
+		return Util.addNbtData(Util.addNbtData(stackOut, tag), this.tag);
     }
 }

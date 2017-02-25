@@ -16,8 +16,8 @@ import net.minecraft.world.World;
 public class NBTShapelessRecipe extends ShapelessRecipes {
 	
 	public final Predicate <ItemStack> condition;
-	
 	public final ItemStack inputNbt;
+	public final NBTTagCompound tag;
 	
 	/**
 	 * 
@@ -31,6 +31,7 @@ public class NBTShapelessRecipe extends ShapelessRecipes {
 		super(Util.setNbtData(outputStack, tag), Util.arrayToList(inputList));
 		this.condition = condition;
 		this.inputNbt = inputNbt;
+		this.tag = tag;
 	}
 	
 	/**
@@ -62,6 +63,6 @@ public class NBTShapelessRecipe extends ShapelessRecipes {
 				break;
 			}
 		}
-		return Util.addNbtData(stackOut, tag);
+		return Util.addNbtData(Util.addNbtData(stackOut, tag), this.tag);
     }
 }

@@ -1,12 +1,11 @@
 package drmeepster.drcorester;
 
-import java.util.HashMap;
-
 import drmeepster.drcorester.proxy.IProxy;
 import drmeepster.drcorester.recipes.NBTShapedRecipe;
 import drmeepster.drcorester.recipes.NBTShapelessRecipe;
-import drmeepster.drcorester.util.Util;
+import drmeepster.drcorester.testing.TestMain;
 import net.minecraft.util.DamageSource;
+import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -25,12 +24,25 @@ public class ModDrCorester{
 	@SidedProxy(clientSide = "drmeepster.drcorester.proxy.ClientProxy", serverSide = "drmeepster.drcorester.proxy.ServerProxy")
 	public static IProxy proxy;
 	
+	public static boolean devStuff;
+	
 	public static final DamageSource DAMAGE_WRATH = new DamageSource("wrath").setDamageAllowedInCreativeMode().setDamageIsAbsolute();
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event){
+		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
+		config.load();
+		ConfigCategory dev = config.getCategory("dev");
+		config.addCustomCategoryComment(dev.getName(), "A few developer configs for DrCorester.");
+		
+		devStuff = config.getBoolean("allowDevItems", dev.getName(), false, "Adds in items used to test DrCorester.");
+		config.save();
+		
 		RecipeSorter.register("NBTShapelessRecipe", NBTShapelessRecipe.class, Category.SHAPELESS, "");
 		RecipeSorter.register("NBTShapedRecipe", NBTShapedRecipe.class, Category.SHAPED, "");
+		if(devStuff){
+			TestMain.init();
+		}
 	}
 	
 	@EventHandler
