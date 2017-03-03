@@ -1,4 +1,4 @@
-/*package drmeepster.drcorester.potion;
+package drmeepster.drcorester.potion;
 
 import drmeepster.drcorester.property.PropertyHandler;
 import drmeepster.drcorester.util.IBasicObject;
@@ -49,15 +49,14 @@ public abstract class BasicPotion extends Potion implements IBasicObject<Potion>
 	}
 	
 	@SideOnly(Side.CLIENT)
-    	@Override
-    	public void renderHUDEffect(int x, int y, PotionEffect effect, net.minecraft.client.Minecraft mc, float alpha){
-    		mc.getTextureManager().bindTexture(icon);
+    @Override
+    public void renderHUDEffect(int x, int y, PotionEffect effect, net.minecraft.client.Minecraft mc, float alpha){
+    	mc.getTextureManager().bindTexture(icon);
 		Gui.drawModalRectWithCustomSizedTexture(x + 3, y + 3, 0, 0, 18, 18, 18, 18);
-    	}
+    }
 	
 	@Override
 	public String getId(){
 		return id;
 	}
 }
-*/
