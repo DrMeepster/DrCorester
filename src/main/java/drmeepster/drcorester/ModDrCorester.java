@@ -36,7 +36,7 @@ public class ModDrCorester{
 	
 	public static final DamageSource DAMAGE_WRATH = new DamageSource("wrath").setDamageAllowedInCreativeMode().setDamageIsAbsolute();
 	
-	public static BasicItem itemVeryBad;
+	public static BasicItem placeholder;
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event){
@@ -65,7 +65,7 @@ public class ModDrCorester{
 			TestMain.preInit();
 		}
 		
-		itemVeryBad = Util.register(new BasicItem("very_bad", MODID));
+		placeholder = Util.register(new BasicItem("placeholder", MODID));
 	}
 	
 	@EventHandler

@@ -74,7 +74,7 @@ public class NBTShapedRecipe extends ShapedRecipes {
 	@Nullable
     public ItemStack getCraftingResult(InventoryCrafting inv){
 		NBTTagCompound tag = new NBTTagCompound();
-		ItemStack is1 = new ItemStack(ModDrCorester.itemVeryBad);
+		ItemStack is1 = new ItemStack(ModDrCorester.placeholder);
 		
 		for(int i = 0; i < inv.getSizeInventory(); i++){
 			System.out.println(i);
