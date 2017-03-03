@@ -1,4 +1,4 @@
-package drmeepster.drcorester.potion;
+/*package drmeepster.drcorester.potion;
 
 import drmeepster.drcorester.property.PropertyHandler;
 import drmeepster.drcorester.util.IBasicObject;
@@ -60,3 +60,4 @@ public abstract class BasicPotion extends Potion implements IBasicObject<Potion>
 		return id;
 	}
 }
+*/

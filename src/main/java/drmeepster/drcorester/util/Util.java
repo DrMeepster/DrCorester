@@ -30,6 +30,11 @@ import net.minecraftforge.fml.relauncher.Side;
 
 public final class Util{
 	
+	public static final char SECTION_SIGN = '\u00A7';
+	
+	/**
+	 * Nope.
+	 */
 	private Util(){}
 	
 	public static void wrath(EntityLivingBase player, Achievement onWrath){
@@ -145,19 +150,27 @@ public final class Util{
 	}
 	
 	public static ItemStack addNbtData(ItemStack stack, NBTTagCompound tag){
-		NBTTagCompound out = stack.getTagCompound();
-		if(out == null){
+		if(tag == null){
+			return stack;
+		}
+		NBTTagCompound out;
+		ItemStack s = stack.copy();
+	
+		if(stack.getTagCompound() == null){
 			out = tag;
 		}else{
-			out.merge(tag);
+			out = stack.getTagCompound().copy();
 		}
-		stack.setTagCompound(out);
-		return stack;
+		
+		out.merge(tag);
+		s.setTagCompound(out);
+		return s;
 	}
 	
 	public static ItemStack setNbtData(ItemStack stack, NBTTagCompound tag){
-		stack.setTagCompound(tag);
-		return stack;
+		ItemStack s = stack.copy();
+		s.setTagCompound(tag);
+		return s;
 	}
 	
 	public static <T> ArrayList<T> arrayToList(T[] array){
@@ -245,6 +258,4 @@ public final class Util{
         	throw new RuntimeException("Caught exception in creating an ItemStack array, " + e.toString(), e);
         }
 	}
-	
-	
 }

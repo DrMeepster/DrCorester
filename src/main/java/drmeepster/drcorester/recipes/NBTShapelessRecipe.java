@@ -5,8 +5,11 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
+import drmeepster.drcorester.ModDrCorester;
 import drmeepster.drcorester.util.Util;
+import net.minecraft.init.Blocks;
 import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapelessRecipes;
@@ -17,21 +20,17 @@ public class NBTShapelessRecipe extends ShapelessRecipes {
 	
 	public final Predicate <ItemStack> condition;
 	public final ItemStack inputNbt;
-	public final NBTTagCompound tag;
 	
 	/**
-	 * 
 	 * @param inputList The list of crafting {@code ItemStack}s including {@code inputNbt}.
 	 * @param inputNbt The {@code ItemStack} that gives its {@code NBTTagCompound} to {@code outputStack}
-	 * @param outputStack The {@code ItemStack} that is crafted and given {@code inputNbt}'s {@code NBTTagCompound} plus {@code tag}.
-	 * @param tag The {@code NBTTagCompound} to give to {@code outputStack}.
+	 * @param outputStack The {@code ItemStack} that is crafted and given {@code inputNbt}'s {@code NBTTagCompound}.
 	 * @param condition The condition that needs to be true when given {@code inputNbt}. May be {@code null}.
 	 */
-	public NBTShapelessRecipe(ItemStack[] inputList, ItemStack inputNbt, ItemStack outputStack, NBTTagCompound tag, Predicate<ItemStack> condition){
-		super(Util.setNbtData(outputStack, tag), Util.arrayToList(inputList));
+	public NBTShapelessRecipe(ItemStack[] inputList, ItemStack inputNbt, ItemStack outputStack, Predicate<ItemStack> condition){
+		super(outputStack, Util.arrayToList(inputList));
 		this.condition = condition;
 		this.inputNbt = inputNbt;
-		this.tag = tag;
 	}
 	
 	/**
@@ -40,8 +39,8 @@ public class NBTShapelessRecipe extends ShapelessRecipes {
 	 * @param tag The {@code NBTTagCompound} to change the output {@code ItemStack} with.
 	 * @param condition The condition that needs to be true when given {@code outputStack}. May be {@code null}.
 	 */
-	public NBTShapelessRecipe(ItemStack[] inputList, ItemStack outputStack, NBTTagCompound tag, Predicate<ItemStack> condition){
-		this(inputList, outputStack, outputStack, tag, condition);
+	public NBTShapelessRecipe(ItemStack[] inputList, ItemStack outputStack, Predicate<ItemStack> condition){
+		this(inputList, outputStack, outputStack, condition);
 	}
 
 	@Override
@@ -51,18 +50,24 @@ public class NBTShapelessRecipe extends ShapelessRecipes {
 	
 	@Nullable
     public ItemStack getCraftingResult(InventoryCrafting inv){
-		NBTTagCompound tag = null;
-		ItemStack stackOut = null;
+		NBTTagCompound tag = new NBTTagCompound();
+		ItemStack is1 = new ItemStack(ModDrCorester.itemVeryBad);
 		
-		for(int i = 0; i < inv.getInventoryStackLimit(); i++){
-			ItemStack stack = inv.getStackInSlot(i);
-			if(stack != null && stack.isItemEqual(inputNbt)){
-				tag = stack.getTagCompound();
-				stackOut = new ItemStack(this.getRecipeOutput().getItem(), 1, stack.getItemDamage());
-				stackOut.setTagCompound(stack.getTagCompound());
-				break;
+		for(int i = 0; i < inv.getSizeInventory(); i++){
+			System.out.println(i);
+			ItemStack is2 = inv.getStackInSlot(i) != null ? inv.getStackInSlot(i).copy() : null;
+			
+			if(is2 == null){
+				continue;
+			}
+			
+			if(is2.isItemEqual(inputNbt)){
+				is1 = is2;
+				tag = is2.getTagCompound() != null ? is2.getTagCompound().copy() : tag;
 			}
 		}
-		return Util.addNbtData(Util.addNbtData(stackOut, tag), this.tag);
+		tag.merge(this.getRecipeOutput().getTagCompound().copy());
+		is1.stackSize = inputNbt.stackSize;
+		return Util.addNbtData(is1, tag);
     }
 }
