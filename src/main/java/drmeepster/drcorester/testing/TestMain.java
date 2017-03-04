@@ -22,10 +22,12 @@ public class TestMain{
 	
 	public static BasicItem itemTest;
 	public static ItemNBTTest itemNbtTest;
+	public static PotionTest potionTest;
 	
 	public static void preInit(){
 		itemTest = register(new BasicItem("test", CreativeTabs.MISC, ModDrCorester.MODID));
 		itemNbtTest = register(new ItemNBTTest());
+		potionTest = register(new PotionTest());
 	}
 	
 	public static void init(){

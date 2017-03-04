@@ -25,7 +25,8 @@ public abstract class BasicPotion extends Potion implements IBasicObject<Potion>
 		this.setPotionName("effect." + PropertyHandler.getName(modid, name));
 		this.setRegistryName(modid, name);
 		this.setIconIndex(0, 0);
-		icon = new ResourceLocation(modid + ":textures/potion/");
+		icon = new ResourceLocation(modid, "textures/potion/" + name + ".png");
+		System.out.println(icon);
 		id = name;
 	}
 	
@@ -42,7 +43,7 @@ public abstract class BasicPotion extends Potion implements IBasicObject<Potion>
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void renderInventoryEffect(int x, int y, PotionEffect effect, Minecraft mc) {
-		if (mc.currentScreen != null) {
+		if(mc.currentScreen != null) {
 			mc.getTextureManager().bindTexture(icon);
 			Gui.drawModalRectWithCustomSizedTexture(x + 6, y + 7, 0, 0, 18, 18, 18, 18);
 		}
@@ -59,4 +60,8 @@ public abstract class BasicPotion extends Potion implements IBasicObject<Potion>
 	public String getId(){
 		return id;
 	}
+	
+	/* Copy this:
+	 * public void performEffect(EntityLivingBase entity, int amplifier){
+	 */
 }

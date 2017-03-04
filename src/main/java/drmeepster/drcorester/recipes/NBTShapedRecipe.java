@@ -77,7 +77,6 @@ public class NBTShapedRecipe extends ShapedRecipes {
 		ItemStack is1 = new ItemStack(ModDrCorester.placeholder);
 		
 		for(int i = 0; i < inv.getSizeInventory(); i++){
-			System.out.println(i);
 			ItemStack is2 = inv.getStackInSlot(i) != null ? inv.getStackInSlot(i).copy() : null;
 			
 			if(is2 == null){
