@@ -7,8 +7,8 @@
   "url": "",
   "updateUrl": "",
   "authorList": ["DrMeepster"],
-  "credits": "assets/drcorester/logo.png",
-  "logoFile": "",
+  "credits": "DrMeepster",
+  "logoFile": "assets/drcorester/logo.png",
   "screenshots": [],
   "dependencies": []
 }]
