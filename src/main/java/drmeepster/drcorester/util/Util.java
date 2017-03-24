@@ -58,16 +58,16 @@ public final class Util{
 		GameRegistry.register(object);
 		
 		if(object instanceof Item){
-			registerItemModel((Item)object, ((Item)object).getRegistryName().getResourceDomain());
+			registerItemModel((Item)object);
 		}
 		if(object instanceof IBasicBlock){
 			register(((IBasicBlock)object).getItemBlock());
 		}
 		if(object instanceof ItemBlock){
-			FMLRelaunchLog.info("The ItemBlock with block, \"%s\", has been registered", object.getRegistryName().toString());
+			ModDrCorester.log.info("The ItemBlock with block, \"%s\", has been registered", object.getRegistryName().toString());
 			return object;
 		}
-		FMLRelaunchLog.info("The object, \"%s\", has been registered", object.getRegistryName().toString());
+		ModDrCorester.log.info("The object, \"%s\", has been registered", object.getRegistryName().toString());
 		return object;
 	}
 	
@@ -78,9 +78,9 @@ public final class Util{
 		return register(object);
 	}
 	
-	public static void registerItemModel(Item item, String modid){
-		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT){
-			((ClientProxy)ModDrCorester.proxy).registerItemRenderer(item, 0, removePrefix(item.getUnlocalizedName()), modid);
+	public static void registerItemModel(Item item){
+		if(FMLCommonHandler.instance().getSide() == Side.CLIENT){
+			((ClientProxy)ModDrCorester.proxy).registerItemRenderer(item, 0, item.getRegistryName());
 		}
 	}
 	

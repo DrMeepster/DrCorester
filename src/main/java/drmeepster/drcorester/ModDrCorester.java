@@ -1,5 +1,7 @@
 package drmeepster.drcorester;
 
+import org.apache.logging.log4j.Logger;
+
 import drmeepster.drcorester.item.BasicItem;
 import drmeepster.drcorester.proxy.IProxy;
 import drmeepster.drcorester.recipes.NBTShapedRecipe;
@@ -37,11 +39,14 @@ public class ModDrCorester{
 	public static final DamageSource DAMAGE_WRATH = new DamageSource("wrath").setDamageAllowedInCreativeMode().setDamageIsAbsolute();
 	
 	public static BasicItem placeholder;
+	
+	public static Logger log;
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event){
+		log = event.getModLog();
 		if(!Loader.instance().java8){
-			FMLRelaunchLog.severe("WARNING! DrCorester requires Java 8! Things will propably not work!");
+			log.error("WARNING! DrCorester requires Java 8! Things will propably not work!");
 			badJava = true;
 		}
 		
