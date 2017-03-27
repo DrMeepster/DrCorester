@@ -1,5 +1,6 @@
 package drmeepster.drcorester;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import drmeepster.drcorester.item.BasicItem;
@@ -44,9 +45,9 @@ public class ModDrCorester{
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event){
-		log = event.getModLog();
+		log = LogManager.getLogger(event.getModMetadata().name);
 		if(!Loader.instance().java8){
-			log.error("WARNING! DrCorester requires Java 8! Things will propably not work!");
+			log.error(String.format("WARNING! DrCorester requires Java 8, not %s! Things will propably not work!", System.getProperty("java.version")));
 			badJava = true;
 		}
 		
@@ -56,7 +57,7 @@ public class ModDrCorester{
 		config.addCustomCategoryComment(dev.getName(), "A few developer configs for DrCorester.");
 		
 		devStuff = config.getBoolean("allowDevItems", dev.getName(), false, "Adds in items used to test DrCorester.");
-		careAboutJava = config.getBoolean("careAboutJVMVersion", Configuration.CATEGORY_GENERAL, true, "Care whether or not Bables has Java 8.");
+		careAboutJava = config.getBoolean("careAboutJVMVersion", Configuration.CATEGORY_GENERAL, true, "Care whether or not DrCorester has Java 8.");
 		crashOnVeryBad = config.getBoolean("crashOnVeryBadItem", dev.getName(), true, "Causes a crash when \"item.drcorester_very_bad\" is spawned");
 		config.save();
 		

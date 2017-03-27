@@ -1,2 +1,9 @@
 #Death
 death.attack.wrath=%1$s incurred the wrath of DrMeepster!
+
+#Debug
+item.drcorester_test.name=Dr Corester Debug Item Normal
+item.drcorester_nbt.name=Dr Corester Debug Item NBT
+tile.drcorester_test_norm.name=Dr Corester Debug Block Normal
+tile.drcorester_test_falling.name=Dr Corester Debug Block Falling
+item.drcorester_placeholder.name=PLACEHOLDER

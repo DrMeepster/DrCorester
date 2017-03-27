@@ -1,9 +1,15 @@
 package drmeepster.drcorester.testing;
 
+import static drmeepster.drcorester.util.Util.register;
+
+import drmeepster.drcorester.ModDrCorester;
+import drmeepster.drcorester.block.BasicBlock;
 import drmeepster.drcorester.item.BasicItem;
 import drmeepster.drcorester.recipes.NBTShapedRecipe;
 import drmeepster.drcorester.recipes.NBTShapelessRecipe;
 import drmeepster.drcorester.util.Util;
+import net.minecraft.block.material.MapColor;
+import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -11,23 +17,24 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
-import static drmeepster.drcorester.util.Util.register;
-
-import java.util.ArrayList;
-import java.util.function.Predicate;
-
-import drmeepster.drcorester.ModDrCorester;
-
 public class TestMain{
 	
 	public static BasicItem itemTest;
 	public static ItemNBTTest itemNbtTest;
+	
 	public static PotionTest potionTest;
+	
+	public static BasicBlock blockNormTest;
+	public static BlockTestFalling blockTestFalling;
 	
 	public static void preInit(){
 		itemTest = register(new BasicItem("test", CreativeTabs.MISC, ModDrCorester.MODID));
 		itemNbtTest = register(new ItemNBTTest());
+		
 		potionTest = register(new PotionTest());
+		
+		blockNormTest = register(new BasicBlock(MapColor.OBSIDIAN, Material.CLOTH, "test_norm", null, ModDrCorester.MODID));
+		blockTestFalling = register(new BlockTestFalling());
 	}
 	
 	public static void init(){

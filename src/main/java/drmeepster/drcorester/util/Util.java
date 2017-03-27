@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiPredicate;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
 
 import drmeepster.drcorester.ModDrCorester;
@@ -21,6 +22,7 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.Achievement;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -64,10 +66,10 @@ public final class Util{
 			register(((IBasicBlock)object).getItemBlock());
 		}
 		if(object instanceof ItemBlock){
-			ModDrCorester.log.info("The ItemBlock with block, \"%s\", has been registered", object.getRegistryName().toString());
+			ModDrCorester.log.info(String.format("The ItemBlock with block, \"%s\", has been registered", object.getRegistryName().toString()));
 			return object;
 		}
-		ModDrCorester.log.info("The object, \"%s\", has been registered", object.getRegistryName().toString());
+		ModDrCorester.log.info(String.format("The object, \"%s\", has been registered", object.getRegistryName().toString()));
 		return object;
 	}
 	
@@ -79,11 +81,9 @@ public final class Util{
 	}
 	
 	public static void registerItemModel(Item item){
-		if(FMLCommonHandler.instance().getSide() == Side.CLIENT){
-			((ClientProxy)ModDrCorester.proxy).registerItemRenderer(item, 0, item.getRegistryName());
-		}
+		ModDrCorester.proxy.registerItemRenderer(item, 0, item.getRegistryName());
 	}
-	
+
 	public static String removePrefix(String id, char seperator){
 		char[] idChar = id.toCharArray();
 		for(int i = 0; i < id.length(); i++){
@@ -97,6 +97,8 @@ public final class Util{
 	public static String removePrefix(String id){
 		return removePrefix(id, '.');
 	}
+	
+	/**LAMBADA EXPRESSIONS START*/
 	
 	/*
 	 * 0 = "NO!"
@@ -115,6 +117,7 @@ public final class Util{
 	
 	public static final BiPredicate<Boolean, Boolean> XOR = (a, b) -> ((a && b) || (!a && !b));
 	public static final BiPredicate<Boolean, Boolean> XNOR = (a, b) -> !((a && b) || (!a && !b));
+	/**LAMBADA EXPRESSIONS END*/
 	
 	public static ArrayList<EntityPlayer> getPlayersAtPos(World world, BlockPos pos, int spectator){
 		List<EntityPlayer> players = world.playerEntities;
@@ -257,5 +260,12 @@ public final class Util{
         }catch(RuntimeException e){
         	throw new RuntimeException("Caught exception in creating an ItemStack array, " + e.toString(), e);
         }
+	}
+	
+	public static EnumFacing pitchToDir(float pitch){
+		if(pitch < 0){
+			return EnumFacing.DOWN;
+		}
+		return EnumFacing.UP;
 	}
 }

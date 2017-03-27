@@ -13,7 +13,10 @@ public class BasicBlockFalling extends BlockFalling implements IBasicBlock {
 	private String id;
 	private BasicItemBlock itemBlock;
 	
-	public BasicBlockFalling(Material material, String name, CreativeTabs tab, String modid){
+	/**
+	 * Please extend.
+	 */
+	protected BasicBlockFalling(Material material, String name, CreativeTabs tab, String modid){
 		super(material);
 		setRegistryName(name);
 		itemBlock = new BasicItemBlock(this, modid);

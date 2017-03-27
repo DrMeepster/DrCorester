@@ -26,7 +26,6 @@ public abstract class BasicPotion extends Potion implements IBasicObject<Potion>
 		this.setRegistryName(modid, name);
 		this.setIconIndex(0, 0);
 		icon = new ResourceLocation(modid, "textures/potion/" + name + ".png");
-		System.out.println(icon);
 		id = name;
 	}
 	
