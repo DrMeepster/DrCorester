@@ -1,7 +1,5 @@
 package drmeepster.drcorester.property;
 
-import static drmeepster.drcorester.property.ValueTypes.*;
-
 public class ValueWrapper {
 	
 	public final String name;

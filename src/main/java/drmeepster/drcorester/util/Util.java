@@ -5,12 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiPredicate;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
 
 import drmeepster.drcorester.ModDrCorester;
 import drmeepster.drcorester.block.IBasicBlock;
-import drmeepster.drcorester.proxy.ClientProxy;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.IBlockState;
@@ -25,10 +23,7 @@ import net.minecraft.stats.Achievement;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.relauncher.FMLRelaunchLog;
-import net.minecraftforge.fml.relauncher.Side;
 
 public final class Util{
 	
@@ -49,13 +44,14 @@ public final class Util{
 		
 		EntityLightningBolt lightning;
 		for(int i = 0; i < 5; i++){
-			lightning = new EntityLightningBolt(world, (double)playerPos.getX(), (double)playerPos.getY(), (double)playerPos.getZ(), true);
+			lightning = new EntityLightningBolt(world, playerPos.getX(), playerPos.getY(), playerPos.getZ(), true);
 			world.spawnEntityInWorld(lightning);
 		}
 
 		player.attackEntityFrom(ModDrCorester.DAMAGE_WRATH, Float.MAX_VALUE);
 	}
 		
+	@SuppressWarnings("rawtypes")
 	public static <T extends IBasicObject> T register(T object){
 		GameRegistry.register(object);
 		
@@ -73,6 +69,7 @@ public final class Util{
 		return object;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public static <T extends IBasicObject> T register(T object, List<Item> itemList){
 		if(object instanceof Item){
 			itemList.add((Item)object);
@@ -184,6 +181,11 @@ public final class Util{
 		return list;
 	}
 	
+	/**
+	 * @deprecated Heap pollution
+	 */
+	@Deprecated
+	@SuppressWarnings("unchecked")
 	public static <T> T[] varargsToArray(T... t){
 		return t;
 	}
@@ -195,21 +197,16 @@ public final class Util{
         int k = 0;
         
         try{
-        	if (recipeComponents[i] instanceof String[])
-        	{
-        		String[] astring = (String[])((String[])recipeComponents[i++]);
+        	if (recipeComponents[i] instanceof String[]){
+        		String[] astring = ((String[])recipeComponents[i++]);
 
-        		for (String s2 : astring)
-        		{
+        		for (String s2 : astring){
         			++k;
         			j = s2.length();
         			s = s + s2;
         		}
-        	}
-        	else
-        	{
-        		while (recipeComponents[i] instanceof String)
-        		{
+        	}else{
+        		while (recipeComponents[i] instanceof String){
         			String s1 = (String)recipeComponents[i++];
         			++k;
         			j = s1.length();
@@ -219,21 +216,15 @@ public final class Util{
 
         	Map<Character, ItemStack> map;
 
-        	for (map = Maps.<Character, ItemStack>newHashMap(); i < recipeComponents.length; i += 2)
-        	{
+        	for (map = Maps.<Character, ItemStack>newHashMap(); i < recipeComponents.length; i += 2){
         		Character character = (Character)recipeComponents[i];
         		ItemStack itemstack = null;
 
-        		if (recipeComponents[i + 1] instanceof Item)
-        		{
+        		if (recipeComponents[i + 1] instanceof Item){
         			itemstack = new ItemStack((Item)recipeComponents[i + 1]);
-        		}
-        		else if (recipeComponents[i + 1] instanceof Block)
-        		{
+        		}else if (recipeComponents[i + 1] instanceof Block){
         			itemstack = new ItemStack((Block)recipeComponents[i + 1], 1, 32767);
-        		}
-        		else if (recipeComponents[i + 1] instanceof ItemStack)
-        		{
+        		}else if (recipeComponents[i + 1] instanceof ItemStack){
         			itemstack = (ItemStack)recipeComponents[i + 1];
         		}
 
@@ -242,16 +233,12 @@ public final class Util{
 
         	ItemStack[] aitemstack = new ItemStack[j * k];
         	
-        	for (int l = 0; l < j * k; ++l)
-        	{
+        	for (int l = 0; l < j * k; ++l){
         		char c0 = s.charAt(l);
 
-        		if (map.containsKey(Character.valueOf(c0)))
-        		{
-        			aitemstack[l] = ((ItemStack)map.get(Character.valueOf(c0))).copy();
-        		}
-        		else
-        		{
+        		if (map.containsKey(Character.valueOf(c0))){
+        			aitemstack[l] = map.get(Character.valueOf(c0)).copy();
+        		}else{
         			aitemstack[l] = null;
         		}
         	}
