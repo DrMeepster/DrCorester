@@ -3,12 +3,14 @@ package drmeepster.drcorester;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import drmeepster.drcorester.block.BasicInfectionBlock;
 import drmeepster.drcorester.item.BasicItem;
 import drmeepster.drcorester.proxy.IProxy;
 import drmeepster.drcorester.recipes.NBTShapedRecipe;
 import drmeepster.drcorester.recipes.NBTShapelessRecipe;
 import drmeepster.drcorester.testing.TestMain;
 import drmeepster.drcorester.util.Util;
+import net.minecraft.block.Block;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
@@ -73,11 +75,13 @@ public class ModDrCorester{
 		placeholder = Util.register(new BasicItem("placeholder", MODID));
 	}
 	
+	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void init(FMLInitializationEvent event){
 		if(devStuff){
 			TestMain.init();
 		}
+		BasicInfectionBlock.evaluateAll();
 	}
 
 	@EventHandler

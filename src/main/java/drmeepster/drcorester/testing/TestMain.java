@@ -23,9 +23,11 @@ public class TestMain{
 	public static ItemNBTTest itemNbtTest;
 	
 	public static PotionTest potionTest;
+	public static final TabTesting TAB_TESTING = new TabTesting();
 	
 	public static BasicBlock blockNormTest;
 	public static BlockTestFalling blockTestFalling;
+	public static BlockTestInfection blockTestInfection;
 	
 	public static void preInit(){
 		itemTest = register(new BasicItem("test", CreativeTabs.MISC, ModDrCorester.MODID));
@@ -35,6 +37,7 @@ public class TestMain{
 		
 		blockNormTest = register(new BasicBlock(MapColor.OBSIDIAN, Material.CLOTH, "test_norm", null, ModDrCorester.MODID));
 		blockTestFalling = register(new BlockTestFalling());
+		blockTestInfection = register(new BlockTestInfection());
 	}
 	
 	public static void init(){

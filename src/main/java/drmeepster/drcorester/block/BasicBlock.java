@@ -11,13 +11,14 @@ public class BasicBlock extends Block implements IBasicBlock {
 	//copy these
 	//public static final String NAME = "";
 		
-	private String id;
+	protected final String id;
 	private BasicItemBlock itemBlock;
 	
 	public BasicBlock(MapColor color, Material material, String name, CreativeTabs tab, String modid){
 		super(material, color);
 		setRegistryName(name);
 		itemBlock = new BasicItemBlock(this, modid);
+		id = name;
 		setUnlocalizedName(PropertyHandler.getName(modid, name));
 		if(tab != null){
 			setCreativeTab(tab);

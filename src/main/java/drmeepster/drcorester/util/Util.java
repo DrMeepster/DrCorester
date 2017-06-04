@@ -1,17 +1,24 @@
 package drmeepster.drcorester.util;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.function.BiPredicate;
 
 import com.google.common.collect.Maps;
 
 import drmeepster.drcorester.ModDrCorester;
 import drmeepster.drcorester.block.IBasicBlock;
+import drmeepster.drcorester.util.BlockArea.BlockAreaApplied;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.block.material.MapColor;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.player.EntityPlayer;
@@ -21,8 +28,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.Achievement;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public final class Util{
@@ -51,8 +60,7 @@ public final class Util{
 		player.attackEntityFrom(ModDrCorester.DAMAGE_WRATH, Float.MAX_VALUE);
 	}
 		
-	@SuppressWarnings("rawtypes")
-	public static <T extends IBasicObject> T register(T object){
+	public static <T extends IBasicObject<?>> T register(T object){
 		GameRegistry.register(object);
 		
 		if(object instanceof Item){
@@ -65,12 +73,14 @@ public final class Util{
 			ModDrCorester.log.info(String.format("The ItemBlock with block, \"%s\", has been registered", object.getRegistryName().toString()));
 			return object;
 		}
+		/*if(object instanceof BasicBiome){
+			
+		}*/
 		ModDrCorester.log.info(String.format("The object, \"%s\", has been registered", object.getRegistryName().toString()));
 		return object;
 	}
 	
-	@SuppressWarnings("rawtypes")
-	public static <T extends IBasicObject> T register(T object, List<Item> itemList){
+	public static <T extends IBasicObject<?>> T register(T object, List<Item> itemList){
 		if(object instanceof Item){
 			itemList.add((Item)object);
 		}
@@ -114,6 +124,7 @@ public final class Util{
 	
 	public static final BiPredicate<Boolean, Boolean> XOR = (a, b) -> ((a && b) || (!a && !b));
 	public static final BiPredicate<Boolean, Boolean> XNOR = (a, b) -> !((a && b) || (!a && !b));
+	public static final TriPredicate<World, BlockPos, BlockPos> INFECTION_ALWAYS = (World w, BlockPos b, BlockPos bb) -> true;
 	/**LAMBADA EXPRESSIONS END*/
 	
 	public static ArrayList<EntityPlayer> getPlayersAtPos(World world, BlockPos pos, int spectator){
@@ -254,5 +265,216 @@ public final class Util{
 			return EnumFacing.DOWN;
 		}
 		return EnumFacing.UP;
+	}
+	
+	public static int getNextMapColor(){
+		//Will only be -1 if array is full
+		int out = -1;
+		
+		for(int i = 0; i < MapColor.COLORS.length; i++){
+			if(MapColor.COLORS[i] != null){
+				continue;
+			}
+			out = i;
+			break;
+		}
+		
+		return out;
+	}
+	
+	public static MapColor newMapColor(int color){
+		return newMapColor(getNextMapColor(), color);
+	}
+	
+	public static MapColor newMapColor(int index, int color){
+		Constructor<MapColor> constr;
+		try{
+			constr = MapColor.class.getDeclaredConstructor(int.class, int.class);
+		}catch (NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		constr.setAccessible(true);
+		
+		try {
+			return constr.newInstance(index, color);
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static <K, V> HashMap<K, V> listsToHashMap(List<K> keys, List<V> values){
+		HashMap<K, V> map = new HashMap<>();
+		for(int i = 0; i < (keys.size() > values.size() ? keys.size() : values.size()); i++){
+			map.put(keys.get(i), values.get(i));
+		}
+		return map;
+	}
+	
+	public static <K, V> HashMap<K, V> listsToHashMap(K[] keys, V[] values){
+		return listsToHashMap(arrayToList(keys), arrayToList(values));
+	}
+	
+	public static BlockPos randomBlockInArea(BlockAreaApplied area, Random r){
+		int x = randomInt(area.bound(EnumFacing.EAST), area.bound(EnumFacing.WEST), r);
+		int y = randomInt(area.bound(EnumFacing.UP), area.bound(EnumFacing.DOWN), r);
+		int z = randomInt(area.bound(EnumFacing.SOUTH), area.bound(EnumFacing.NORTH), r);
+		
+		return new BlockPos(x, y, z);
+	}
+	
+	public static BlockPos randomBlockInChunk(Chunk c, Random r){
+		int x = randomInt(chunkBound(EnumFacing.EAST, c), chunkBound(EnumFacing.WEST, c), r);
+		int y = randomInt(chunkBound(EnumFacing.UP, c), chunkBound(EnumFacing.DOWN, c), r);
+		int z = randomInt(chunkBound(EnumFacing.SOUTH, c), chunkBound(EnumFacing.NORTH, c), r);
+		
+		return new BlockPos(x, y, z);
+	}
+	
+	public static int chunkBound(EnumFacing dir, int x, int z){
+		if(dir == null){
+			throw new NullPointerException("\"dir\" cannot be null!");
+		}
+		
+		switch(dir){
+		case EAST:
+			return x * 16;
+		case WEST:
+			return (x * 16) + 15;
+		case UP:
+			//Just in case a mod changes max height limit
+			return Minecraft.getMinecraft().theWorld.getHeight();
+		case DOWN:
+			return 0;
+		case SOUTH:
+			return z * 16;
+		case NORTH:
+			return (z * 16) + 15;
+		default:
+			throw new IllegalArgumentException("Chunks do not have a bound in the \"" + dir + "\" direction.");
+		}
+	}
+	
+	public static int chunkBound(EnumFacing dir, Chunk c){
+		return chunkBound(dir, c.xPosition, c.zPosition);
+	}
+	
+	/**
+	 * NOTE: "a" can be bigger, smaller or equal to "b"
+	 * 
+	 * @return A random number from "a" to "b" (inclusive).
+	 */
+	public static int randomInt(int a, int b, Random r){
+		if(a == b){
+			return a;
+		}else if(a < b){
+			return r.ints(a, b + 1).findAny().getAsInt();
+		}else{
+			return r.ints(b, a + 1).findAny().getAsInt();
+		}
+	}
+	
+	/**
+	 * Allows getting a <code>IBlockState</code> from a <code>Block</code> before it is constructed.
+	 * 
+	 * @author DrMeepster
+	 */
+	public static final class BlockStateWrapper{
+		private IBlockState state = null;
+		private boolean evaluated = false;
+		
+		private final ResourceLocation block;
+		private final int meta;
+		
+		/**
+		 * 
+		 * 
+		 * @param state
+		 */
+		public BlockStateWrapper(IBlockState state){
+			this(state.getBlock().getRegistryName(), state.getBlock().getMetaFromState(state));
+			this.state = state;
+			evaluated = true;
+		}
+		
+		public BlockStateWrapper(ResourceLocation block){
+			this(block, 0);
+		}
+		
+		/**
+		 * Constructs a <code>BlockStateWrapper</code>.
+		 * 
+		 * @param block
+		 * @param meta
+		 */
+		public BlockStateWrapper(ResourceLocation block, int meta){
+			if(block == null){
+				throw new NullPointerException("\"block\" cannot be null!");
+			}
+			if(meta < 0 || meta > 15){
+				throw new IllegalArgumentException("\"meta\" must be between 0 and 15 (inclusive), not " + meta + "!");
+			}
+			this.block = block;
+			this.meta = meta;
+		}
+		
+		public IBlockState getState(){
+			if(!evaluated){
+				throw new IllegalStateException("This BlockStateWrapper must have \"evaluated\" be true to access the IBlockState.");
+			}
+			return state;
+		}
+
+		public boolean isEvaluated(){
+			return evaluated;
+		}
+
+		public ResourceLocation getBlock(){
+			return block;
+		}
+
+		public int getMeta(){
+			return meta;
+		}
+		
+		@SuppressWarnings("deprecation")
+		public void evaluate() throws EvaluationException{
+			try{
+				if(evaluated){
+					throw new IllegalStateException("Cannot evaluate an evaluated BlockStateWrapper!");
+				}
+				state = Block.REGISTRY.getObject(block).getStateFromMeta(meta);
+				evaluated = true;
+			}catch(Exception e){
+				throw new EvaluationException(e);
+			}
+		}
+		
+		public static class EvaluationException extends RuntimeException{
+
+			private static final long serialVersionUID = -3948779907025439331L;
+
+			public EvaluationException() {
+		        super();
+		    }
+
+		    public EvaluationException(String message){
+		        super(message);
+		    }
+
+		    public EvaluationException(String message, Throwable cause){
+		        super(message, cause);
+		    }
+
+		    public EvaluationException(Throwable cause){
+		        super(cause);
+		    }
+
+		    protected EvaluationException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace){
+		        super(message, cause, enableSuppression, writableStackTrace);
+		    }
+		}
 	}
 }
