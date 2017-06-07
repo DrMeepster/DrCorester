@@ -613,4 +613,30 @@ public final class Util{
 	public static int randomInt(int a, int b){
 		return randomInt(a, b, new Random());
 	}
+	
+	/**
+	 *
+	 */
+	public static final HashSet<BlockPos> findAllBlocks(BlockAreaApplied area, World world){
+		final BlockPos POSITION = new BlockPos(area.bound(EnumFacing.WEST), area.bound(EnumFacing.DOWN), area.bound(EnumFacing.NORTH));
+		BlockPos posZ = POSITION;
+		BlockPos posY = POSITION;
+		BlockPos posX = POSITION;
+		
+		HashSet<BlockPos> out = new HashSet<>(area.getArea().volume());
+		for(int z = 0; z < area.getArea().length(Axis.Z); z++){
+			for(int y = 0; y < area.getArea().length(Axis.Y) ; y++){
+				for(int x = 0; x < area.getArea().length(Axis.X); x++){
+					out.add(posX);
+					posX = posX.east();
+				}
+				posY = posY.up();
+				posX = posY;
+			}
+			posZ = posZ.south();
+			posY = posZ;
+			posX = posZ;
+		}
+		return out;
+	}
 }
