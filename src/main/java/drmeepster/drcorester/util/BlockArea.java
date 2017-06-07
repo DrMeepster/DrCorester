@@ -4,6 +4,11 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 
+/**
+ * Represents a area of blocks not tied to any coordinates.
+ * 
+ * @author DrMeepster
+ */
 public class BlockArea implements Cloneable{
 
 	protected int north;
@@ -13,6 +18,9 @@ public class BlockArea implements Cloneable{
 	protected int west;
 	protected int east;
 	
+	/**
+	 * The largest possible BlockArea.
+	 */
 	public static final BlockArea MAX_AREA = new BlockArea(Byte.MAX_VALUE);
 	
 	/**
@@ -66,6 +74,12 @@ public class BlockArea implements Cloneable{
 		this.east = east;
 	}
 	
+	/**
+	 * Returns how long this <code>BlockArea</code> is in <code>axis</code>.
+	 * 
+	 * @param axis The axis to measure.
+	 * @return How long this <code>BlockArea</code> is.
+	 */
 	public int length(Axis axis){
 		if(axis == null){
 			throw new NullPointerException("\"axis\" cannot be null!");
@@ -82,10 +96,14 @@ public class BlockArea implements Cloneable{
 			throw new IllegalArgumentException("A BlockArea does not have a length in the \"" + axis.toString() + "\" length.");
 		}
 	}
-
+	
 	/**
-	 * @see java.lang.Object#toString()
+	 * @return The volume of this <code>BlockArea</code>.
 	 */
+	public int volume(){
+		return length(Axis.X) * length(Axis.Y) * length(Axis.Z);
+	}
+
 	@Override
 	public String toString() {
 		return "BlockArea[north=" + north + ", south=" + south + ", up=" + up + ", down=" + down + ", west=" + west+ ", east=" + east + "]";
@@ -239,6 +257,11 @@ public class BlockArea implements Cloneable{
 		this.east = east;
 	}
 	
+	/**
+	 * An immutable class that represents an area of blocks at a specific position.
+	 * 
+	 * @author DrMeepster
+	 */
 	public static final class BlockAreaApplied{
 		
 		public final BlockPos pos;
@@ -249,19 +272,50 @@ public class BlockArea implements Cloneable{
 			return "BlockAreaApplied [x=" + pos.getX() + ", y=" + pos.getY() + ", z=" + pos.getZ() + ", area=" + area + "]";
 		}
 
+		/**
+		 * Creates a new <code>BlockAreaApplied</code> with a new <code>BlockArea</code>.
+		 *
+		 * @param x Edge distance from origin in the positive and negative x directions.
+		 * @param y Edge distance from origin in the positive and negative y directions.
+		 * @param z Edge distance from origin in the positive and negative z directions.
+		 * @param pos The position of the <code>BlockAreaApplied</code>.
+		 */
 		public BlockAreaApplied(byte x, byte y, byte z, BlockPos pos){
 			this(x, x, y, y, z, z, pos);
 		}
-
+		
+		/**
+		 * 
+		 * Creates a new <code>BlockAreaApplied</code> with a new <code>BlockArea</code>.
+		 *
+		 * @param east Edge distance from origin in the positive x direction.
+		 * @param west Edge distance from origin in the negative x direction.
+		 * @param up Edge distance from origin in the positive y direction.
+		 * @param down Edge distance from origin in the negative y direction.
+	 	 * @param south Edge distance from origin in the positive z direction.
+	 	 * @param north Edge distance from origin in the negative z direction.
+		 * @param pos The position of the <code>BlockAreaApplied</code>.
+		 */
 		public BlockAreaApplied(byte north, byte south, byte up, byte down, byte west, byte east, BlockPos pos){
 			this(new BlockArea(north, south, up, down, east, west));
 		}
 		
+		/**
+		 * Creates a new <code>BlockAreaApplied</code>
+		 *
+		 * @param area The area to "apply".
+		 * @param pos The position.
+		 */
 		public BlockAreaApplied(BlockArea area, BlockPos pos){
 			this.area = area;
 			this.pos = pos;
 		}
 		
+		/**
+		 * Creates a new <code>BlockAreaApplied</code>
+		 *
+		 * @param area The area to "apply".
+		 */
 		public BlockAreaApplied(BlockArea area){
 			this(area, BlockPos.ORIGIN);
 		}
@@ -276,6 +330,12 @@ public class BlockArea implements Cloneable{
 			return null;
 		}
 		
+		/**
+		 * Returns the x/y/z bound of this <code>BlockAreaApplied</code>.
+		 * 
+		 * @param dir Which direction to get the bound of.
+		 * @return The bound of this <code>BlockAreaApplied</code>
+		 */
 		public int bound(EnumFacing dir){
 			if(dir == null){
 				throw new NullPointerException("\"dir\" cannot be null!");
@@ -297,10 +357,6 @@ public class BlockArea implements Cloneable{
 			default:
 				throw new IllegalArgumentException("A BlockAreaApplied does not have a bound in the \"" + dir.toString() + "\" direction.");
 			}
-		}
-		
-		public int volume(){
-			return area.length(Axis.X) * area.length(Axis.Y) * area.length(Axis.Z);
 		}
 		
 		@Override

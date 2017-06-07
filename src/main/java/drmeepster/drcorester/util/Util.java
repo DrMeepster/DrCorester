@@ -533,7 +533,7 @@ public final class Util{
 	}
 	
 	/**
-	 * Returns the x/y bound of the <code>Chunk</code> at the given coordinates.
+	 * Returns the x/y/z bound of the <code>Chunk</code> at the given coordinates.
 	 * 
 	 * @param dir Which direction to get the bound of.
 	 * @param x The X coordinate of the <code>Chunk</code>.
@@ -569,7 +569,7 @@ public final class Util{
 	}
 	
 	/**
-	 * Returns the x/y bound of <code>chunk</code>.
+	 * Returns the x/y/z bound of <code>chunk</code>.
 	 * 
 	 * @param dir Which direction to get the bound of.
 	 * @param chunk The chunk to get the bounds of.
