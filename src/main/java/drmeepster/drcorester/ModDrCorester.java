@@ -3,15 +3,12 @@ package drmeepster.drcorester;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import drmeepster.drcorester.block.BasicInfectionBlock;
-import drmeepster.drcorester.item.BasicItem;
+import drmeepster.drcorester.common.item.BasicItem;
+import drmeepster.drcorester.common.recipes.NBTShapedRecipe;
+import drmeepster.drcorester.common.recipes.NBTShapelessRecipe;
+import drmeepster.drcorester.common.testing.TestMain;
+import drmeepster.drcorester.common.util.Util;
 import drmeepster.drcorester.proxy.IProxy;
-import drmeepster.drcorester.recipes.NBTShapedRecipe;
-import drmeepster.drcorester.recipes.NBTShapelessRecipe;
-import drmeepster.drcorester.testing.TestMain;
-import drmeepster.drcorester.util.Util;
-import net.minecraft.block.Block;
-import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Loader;
@@ -25,7 +22,7 @@ import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.RecipeSorter.Category;
 
 @Mod(modid = ModDrCorester.MODID, useMetadata = true)
-public class ModDrCorester{
+public final class ModDrCorester{
 	
 	public static final String MODID = "drcorester";
 	
@@ -33,12 +30,9 @@ public class ModDrCorester{
 	
 	public static boolean devStuff;
 	public static boolean careAboutJava;
-	public static boolean crashOnVeryBad;
 
 	@SidedProxy(clientSide = "drmeepster.drcorester.proxy.ClientProxy", serverSide = "drmeepster.drcorester.proxy.ServerProxy")
 	public static IProxy proxy;
-	
-	public static final DamageSource DAMAGE_WRATH = new DamageSource("wrath").setDamageAllowedInCreativeMode().setDamageIsAbsolute();
 	
 	public static BasicItem placeholder;
 	
@@ -59,7 +53,6 @@ public class ModDrCorester{
 		
 		devStuff = config.getBoolean("allowDevItems", dev.getName(), false, "Adds in items used to test DrCorester.");
 		careAboutJava = config.getBoolean("careAboutJVMVersion", Configuration.CATEGORY_GENERAL, true, "Care whether or not DrCorester has Java 8.");
-		crashOnVeryBad = config.getBoolean("crashOnVeryBadItem", dev.getName(), true, "Causes a crash when \"item.drcorester_very_bad\" is spawned");
 		config.save();
 		
 		if(badJava && careAboutJava){
@@ -75,13 +68,11 @@ public class ModDrCorester{
 		placeholder = Util.register(new BasicItem("placeholder", MODID));
 	}
 	
-	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void init(FMLInitializationEvent event){
 		if(devStuff){
 			TestMain.init();
 		}
-		BasicInfectionBlock.evaluateAll();
 	}
 
 	@EventHandler
