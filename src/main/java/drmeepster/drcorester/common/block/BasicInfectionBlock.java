@@ -1,9 +1,11 @@
 package drmeepster.drcorester.common.block;
 
 import static drmeepster.drcorester.common.block.BasicInfectionBlock.InfUtil.IntersectionEdge.*;
+import static drmeepster.drcorester.common.block.BasicInfectionBlock.Aura.AuraIntersection.*;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -39,7 +41,7 @@ public class BasicInfectionBlock extends BasicBlock {
 	protected BlockArea range = DEFAULT_RANGE;
 	protected Aura[] auraWeaknesses = new Aura[0];
 	protected int strength = 0;
-	protected IntersectionEdge edge = HARD;
+	protected IntersectionEdge edge = DEFAULT;
 	
 	public BasicInfectionBlock(Material material, String name, CreativeTabs tab, BlockStateWrapper[] infectables, BlockStateWrapper[] infectTo){
 		this(material.getMaterialMapColor(), material, name, tab, infectables, infectTo);
@@ -204,24 +206,34 @@ public class BasicInfectionBlock extends BasicBlock {
 	public void updateTick(World world, BlockPos pos, IBlockState state, Random random){
 		if(!world.isRemote){
 			BlockAreaApplied range = new BlockAreaApplied(this.range, pos);
-			external:for(int i = 0; i < infections; ++i){
+			for(int i = 0; i < infections; ++i){
 				BlockPos blockpos = Util.randomBlockInArea(range, random);
 				IBlockState iblockstate = world.getBlockState(blockpos);
-				for(IBlockState infState : InfUtil.findInfectionBlocksInRange(blockpos, world)){
-					BasicInfectionBlock infBlock = (BasicInfectionBlock)infState.getBlock();
-					if((infBlock.edge.equals(HARD_ABSOLUTE) || edge.equals(HARD_ABSOLUTE)) && (isBlocked(infBlock))){
-						continue external;
+				boolean block = true;
+				boolean biome = true;
+				
+				//Ugly code cause of for loop glitches
+				HashSet<IBlockState> infStates = InfUtil.findInfectionBlocksInRange(blockpos, world);
+				Iterator<IBlockState> iterator = infStates.iterator();
+				for(int ii = 0; ii < InfUtil.findInfectionBlocksInRange(blockpos, world).size(); ii++){
+					BasicInfectionBlock infBlock = (BasicInfectionBlock)iterator.next().getBlock();
+					
+					if(isBlocked(infBlock)){
+						block = !(getAura().getIntersection(infBlock.getAura())[0] == CONFLICTION && strength < infBlock.strength) || (edge.block.equals(Type.FUZZY) && strength == infBlock.strength);
+						biome = !(getAura().getIntersection(infBlock.getAura())[1] == CONFLICTION && strength < infBlock.strength) || (edge.biome.equals(Type.FUZZY) && strength == infBlock.strength);
+					}
+				}
+				
+				if(block){
+					for(BlockStateWrapper stateWrapper : infectMap.keySet()){
+						if(iblockstate ==  stateWrapper.getState() && condition.test(world, pos, blockpos)){
+							world.setBlockState(blockpos, stateWrapper.getState());
+							break;
+						}
 					}
 				}
     		
-				for(BlockStateWrapper stateWrapper : infectMap.keySet()){
-					if(iblockstate ==  stateWrapper.getState() && condition.test(world, pos, blockpos) ){
-						world.setBlockState(blockpos, stateWrapper.getState());
-						break;
-					}
-				}
-    		
-				if(condition.test(world, pos, blockpos) && infectionBiome != null){
+				if(condition.test(world, pos, blockpos) && infectionBiome != null && biome){
 					Chunk c = world.getChunkFromBlockCoords(pos);
 					Chunk cc = world.getChunkFromBlockCoords(blockpos);
     			
@@ -248,10 +260,10 @@ public class BasicInfectionBlock extends BasicBlock {
 		for(IBlockState state : states){
 			Aura contest = ((BasicInfectionBlock)state.getBlock()).getAura();
 			
-			AuraIntersection intersect = aura.getIntersection(contest, false);
+			AuraIntersection intersect = aura.getIntersection(contest)[0];
 			block = intersect.ordinal() > block.ordinal() ? intersect : block;
 			
-			intersect = aura.getIntersection(contest, true);
+			intersect = aura.getIntersection(contest)[1];
 			biome = intersect.ordinal() > biome.ordinal() ? intersect : biome;
 		}
 		return new AuraIntersection[] {block, biome};
@@ -294,11 +306,15 @@ public class BasicInfectionBlock extends BasicBlock {
 		}
 		
 		public static enum IntersectionEdge{
-			HARD(Type.HARD),
-			HARD_FUZZY(Type.HARD, Type.FUZZY),
-			FUZZY_HARD(Type.FUZZY, Type.HARD),
-			FUZZY(Type.FUZZY),
-			HARD_ABSOLUTE(Type.HARD_ABSOLUTE);
+			DEFAULT(Type.DEFAULT),
+			DEFAULT_FUZZY(Type.DEFAULT, Type.FUZZY),
+			//DEFAULT_HARD(Type.DEFAULT, Type.HARD),
+			FUZZY_DEFAULT(Type.FUZZY, Type.DEFAULT),
+			FUZZY(Type.FUZZY);
+			//FUZZY_HARD(Type.FUZZY, Type.HARD),
+			//HARD_DEFAULT(Type.HARD, Type.FUZZY),
+			//HARD_FUZZY(Type.HARD, Type.FUZZY),
+			//HARD(Type.HARD);
 			
 			public final Type block;
 			public final Type biome;
@@ -313,9 +329,9 @@ public class BasicInfectionBlock extends BasicBlock {
 			}
 			
 			public static enum Type{
-				HARD,
-				FUZZY,
-				HARD_ABSOLUTE;
+				DEFAULT,//Blocked when strength is less than or equal to the other one.
+				FUZZY;//No blocking when strengths are equal.
+				//HARD;
 			}
 		}
 	}
@@ -390,35 +406,34 @@ public class BasicInfectionBlock extends BasicBlock {
 			return true;
 		}
 		
-		public AuraIntersection getIntersection(Aura aura, boolean biome){
-			AuraIntersection out = AuraIntersection.NONE;
-			if(biome){
-				for(int i = 0; i < infectionBiome.size(); i++){
-					for(int ii = 0; ii < aura.infectionBiome.size(); ii++){
-						Entry<ResourceLocation, ResourceLocation> entry1 = Util.iterableToList(infectionBiome.entrySet()).get(i);
-						Entry<ResourceLocation, ResourceLocation> entry2 = Util.iterableToList(aura.infectionBiome.entrySet()).get(ii);
-						
-						if(entry1.getKey().equals(entry2.getKey())){
-							if(entry1.getValue().equals(entry2.getValue())){
-								out = AuraIntersection.REDUNDANCY;
-							}else{
-								return AuraIntersection.CONFLICTION;
-							}
+		public AuraIntersection[] getIntersection(Aura aura){
+			AuraIntersection[] out = {NONE, NONE};
+			block:for(int i = 0; i < infectMap.size(); i++){
+				for(int ii = 0; ii < aura.infectMap.size(); ii++){
+					Entry<BlockStateWrapper, BlockStateWrapper> entry1 = Util.iterableToList(infectMap.entrySet()).get(i);
+					Entry<BlockStateWrapper, BlockStateWrapper> entry2 = Util.iterableToList(aura.infectMap.entrySet()).get(ii);
+					
+					if(entry1.getKey().equals(entry2.getKey())){
+						if(entry1.getValue().equals(entry2.getValue())){
+							out[0] = REDUNDANCY;
+						}else{
+							out[0] = CONFLICTION;
+							break block;
 						}
 					}
 				}
-			}else{
-				for(int i = 0; i < infectMap.size(); i++){
-					for(int ii = 0; ii < aura.infectMap.size(); ii++){
-						Entry<BlockStateWrapper, BlockStateWrapper> entry1 = Util.iterableToList(infectMap.entrySet()).get(i);
-						Entry<BlockStateWrapper, BlockStateWrapper> entry2 = Util.iterableToList(aura.infectMap.entrySet()).get(ii);
-						
-						if(entry1.getKey().equals(entry2.getKey())){
-							if(entry1.getValue().equals(entry2.getValue())){
-								out = AuraIntersection.REDUNDANCY;
-							}else{
-								return AuraIntersection.CONFLICTION;
-							}
+			}
+			for(int i = 0; i < infectionBiome.size(); i++){
+				for(int ii = 0; ii < aura.infectionBiome.size(); ii++){
+					Entry<ResourceLocation, ResourceLocation> entry1 = Util.iterableToList(infectionBiome.entrySet()).get(i);
+					Entry<ResourceLocation, ResourceLocation> entry2 = Util.iterableToList(aura.infectionBiome.entrySet()).get(ii);
+					
+					if(entry1.getKey().equals(entry2.getKey())){
+						if(entry1.getValue().equals(entry2.getValue())){
+							out[1] = AuraIntersection.REDUNDANCY;
+						}else{
+							out[1] = AuraIntersection.CONFLICTION;
+							return out;
 						}
 					}
 				}

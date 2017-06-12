@@ -65,7 +65,7 @@ public final class ModDrCorester{
 			TestMain.preInit();
 		}
 		
-		placeholder = Util.register(new BasicItem("placeholder", MODID));
+		placeholder = Util.setup(new BasicItem("placeholder", MODID));
 	}
 	
 	@EventHandler

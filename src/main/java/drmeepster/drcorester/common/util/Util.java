@@ -14,8 +14,10 @@ import java.util.function.BiPredicate;
 import com.google.common.collect.Maps;
 
 import drmeepster.drcorester.ModDrCorester;
+import drmeepster.drcorester.common.block.BasicInfectionBlock;
 import drmeepster.drcorester.common.block.IBasicBlock;
 import drmeepster.drcorester.common.util.BlockArea.BlockAreaApplied;
+import drmeepster.drcorester.common.world.BasicBiome;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.MapColor;
@@ -35,6 +37,7 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.FMLContainer;
 import net.minecraftforge.fml.common.InjectedModContainer;
@@ -152,45 +155,41 @@ public final class Util{
 	}
 	
 	/**
-	 * Registers an <code>IBasicObject</code>.
+	 * Sets up an <code>IBasicObject</code>.
 	 * 
-	 * @param object The <code>IBasicObject</code> to register.
+	 * @param object The <code>IBasicObject</code> to set up.
 	 * @param <T> The type of <code>object</code>.
 	 * @return <code>object</code>
 	 */
-	public static <T extends IBasicObject<?>> T register(T object){
-		GameRegistry.register(object);
-		
+	public static <T extends IBasicObject<?>> T setup(T object){
 		if(object instanceof Item){
 			registerItemModel((Item)object);
 		}
 		if(object instanceof IBasicBlock){
-			register(((IBasicBlock)object).getItemBlock());
+			setup(((IBasicBlock)object).getItemBlock());
 		}
 		if(object instanceof ItemBlock){
-			ModDrCorester.log.info(String.format("The ItemBlock with block, \"%s\", has been registered", object.getRegistryName().toString()));
+			ModDrCorester.log.info(String.format("The ItemBlock with block, \"%s\", has been set  up", object.getRegistryName().toString()));
 			return object;
 		}
-		/*if(object instanceof BasicBiome){
-			
-		}*/
-		ModDrCorester.log.info(String.format("The object, \"%s\", has been registered", object.getRegistryName().toString()));
+		if(object instanceof BasicBiome){
+			BiomeDictionary.registerBiomeType((BasicBiome)object, ((BasicBiome)object).types);
+		}
+		ModDrCorester.log.info(String.format("The object, \"%s\", has been set up", object.getRegistryName().toString()));
 		return object;
 	}
 	
 	/**
-	 * Registers an <code>IBasicObject</code> and adds it to <code>list</code>.
+	 * Sets up an <code>IBasicObject</code> and adds it to <code>list</code>.
 	 * 
-	 * @param object The <code>IBasicObject</code> to register.
+	 * @param object The <code>IBasicObject</code> to set up.
 	 * @param list The <code>List</code> to add <code>object</code>.
 	 * @param <T> The type of <code>object</code> to.
 	 * @return <code>object</code>
 	 */
-	public static <T extends IBasicObject<?>> T register(T object, List<? super T> list){
-		if(object instanceof Item){
-			list.add(object);
-		}
-		return register(object);
+	public static <T extends IBasicObject<?>> T setup(T object, List<? super T> list){
+		list.add(object);
+		return setup(object);
 	}
 	
 	/**

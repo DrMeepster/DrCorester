@@ -1,6 +1,6 @@
 package drmeepster.drcorester.common.testing;
 
-import static drmeepster.drcorester.common.util.Util.register;
+import static drmeepster.drcorester.common.util.Util.setup;
 
 import drmeepster.drcorester.common.block.BasicBlock;
 import drmeepster.drcorester.common.item.BasicItem;
@@ -29,14 +29,14 @@ public class TestMain{
 	public static BlockTestInfection blockTestInfection;
 	
 	public static void preInit(){
-		itemTest = register(new BasicItem("test", CreativeTabs.MISC));
-		itemNbtTest = register(new ItemNBTTest());
+		itemTest = setup(new BasicItem("test", CreativeTabs.MISC));
+		itemNbtTest = setup(new ItemNBTTest());
 		
-		potionTest = register(new PotionTest());
+		potionTest = setup(new PotionTest());
 		
-		blockNormTest = register(new BasicBlock(MapColor.OBSIDIAN, Material.CLOTH, "test_norm", null));
-		blockTestFalling = register(new BlockTestFalling());
-		blockTestInfection = register(new BlockTestInfection());
+		blockNormTest = setup(new BasicBlock(MapColor.OBSIDIAN, Material.CLOTH, "test_norm", null));
+		blockTestFalling = setup(new BlockTestFalling());
+		blockTestInfection = setup(new BlockTestInfection());
 	}
 	
 	public static void init(){
