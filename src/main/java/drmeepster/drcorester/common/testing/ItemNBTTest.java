@@ -15,7 +15,7 @@ public class ItemNBTTest extends BasicItem {
 	public static final String NAME = "nbt";	
 	
 	public ItemNBTTest(){
-		super(NAME, TestMain.TAB_TESTING);
+		super(NAME, TestMain.tabTesting);
 		//this.setMaxStackSize(1);
 	}
 	

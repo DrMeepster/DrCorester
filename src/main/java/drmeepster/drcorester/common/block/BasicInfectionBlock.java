@@ -1,22 +1,26 @@
 package drmeepster.drcorester.common.block;
 
-import static drmeepster.drcorester.common.block.BasicInfectionBlock.InfUtil.IntersectionEdge.*;
-import static drmeepster.drcorester.common.block.BasicInfectionBlock.Aura.AuraIntersection.*;
+import static drmeepster.drcorester.common.block.BasicInfectionBlock.Aura.AuraIntersection.CONFLICTION;
+import static drmeepster.drcorester.common.block.BasicInfectionBlock.Aura.AuraIntersection.NONE;
+import static drmeepster.drcorester.common.block.BasicInfectionBlock.Aura.AuraIntersection.REDUNDANCY;
+import static drmeepster.drcorester.common.block.BasicInfectionBlock.InfUtil.IntersectionEdge.DEFAULT;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 
+import drmeepster.drcorester.ModDrCorester;
 import drmeepster.drcorester.common.block.BasicInfectionBlock.Aura.AuraIntersection;
 import drmeepster.drcorester.common.block.BasicInfectionBlock.InfUtil.IntersectionEdge;
+import drmeepster.drcorester.common.block.BasicInfectionBlock.InfUtil.IntersectionEdge.Type;
 import drmeepster.drcorester.common.util.BlockArea;
+import drmeepster.drcorester.common.util.BlockArea.BlockAreaApplied;
 import drmeepster.drcorester.common.util.BlockStateWrapper;
 import drmeepster.drcorester.common.util.TriPredicate;
 import drmeepster.drcorester.common.util.Util;
-import drmeepster.drcorester.common.util.BlockArea.BlockAreaApplied;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
@@ -26,49 +30,104 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.LoaderState;
 
-public class BasicInfectionBlock extends BasicBlock {
+public class BasicInfectionBlock extends BasicBlock{//BlockGrass
 
 	public static final BlockArea DEFAULT_RANGE = new BlockArea((byte)1, (byte)1, (byte)3, (byte)1, (byte)1, (byte)1);
 	
-	protected Map<BlockStateWrapper, BlockStateWrapper> infectMap;
 	protected TriPredicate<World, BlockPos, BlockPos> condition = Util.INFECTION_ALWAYS;
-	protected int infections = 4;
-	protected Map<ResourceLocation, ResourceLocation> infectionBiome = null;
-	protected BlockArea range = DEFAULT_RANGE;
-	protected Aura[] auraWeaknesses = new Aura[0];
-	protected int strength = 0;
-	protected IntersectionEdge edge = DEFAULT;
+	protected int infections;
+	protected Aura aura;
+	protected BlockArea range;
+	protected Aura[] auraWeaknesses;
+	protected int strength;
 	
-	public BasicInfectionBlock(Material material, String name, CreativeTabs tab, BlockStateWrapper[] infectables, BlockStateWrapper[] infectTo){
-		this(material.getMaterialMapColor(), material, name, tab, infectables, infectTo);
-	}
-	
-	public BasicInfectionBlock(Material material, String name, CreativeTabs tab, Map<BlockStateWrapper, BlockStateWrapper> infectMap){
-		this(material.getMaterialMapColor(), material, name, tab, infectMap);
-	}
-	
-	public BasicInfectionBlock(MapColor color, Material material, String name, CreativeTabs tab, BlockStateWrapper[] infectables, BlockStateWrapper[] infectTo){
-		this(color, material, name, tab, Util.arraysToHashMap(infectables, infectTo));
-	}
-	
-	public BasicInfectionBlock(MapColor color, Material material, String name, CreativeTabs tab, Map<BlockStateWrapper, BlockStateWrapper> infectMap){
+	//useless currently
+	protected IntersectionEdge edge;
+	protected boolean hijacker = false;
+	protected boolean hijackable = false;
+
+	public BasicInfectionBlock(MapColor color, Material material, String name, CreativeTabs tab, TriPredicate<World, BlockPos, BlockPos> condition, int infections, Map<BlockStateWrapper, BlockStateWrapper> infectMap, Map<ResourceLocation, ResourceLocation> infectionBiome, BlockArea range, Aura[] auraWeaknesses, int strength, IntersectionEdge edge, boolean hijacker, boolean hijackable){
 		super(color, material, name, tab);
-		this.infectMap = infectMap;
+		this.condition = condition;
+		this.infections = infections;
+		this.range = range;
+		this.auraWeaknesses = auraWeaknesses;
+		this.strength = strength;
+		this.edge = edge;
+		this.hijacker = hijacker;
+		this.hijackable = hijackable;
+		aura = new Aura(infectMap, null, name + (hasMultipleAuras() ? ":default" : ""));
+		
+		this.setTickRandomly(true);
+	}
+	
+	public BasicInfectionBlock(MapColor color, Material material, String name, CreativeTabs tab, TriPredicate<World, BlockPos, BlockPos> condition, int infections, Map<BlockStateWrapper, BlockStateWrapper> infectMap, Map<ResourceLocation, ResourceLocation> infectionBiome, BlockArea range, Aura[] auraWeaknesses, int strength){
+		this(color, material, name, tab, condition, infections, infectMap, infectionBiome, range, auraWeaknesses, strength, DEFAULT, false, false);
+	}
+	
+	public BasicInfectionBlock(MapColor color, Material material, String name, CreativeTabs tab, Map<BlockStateWrapper, BlockStateWrapper> infectMap, Map<ResourceLocation, ResourceLocation> infectionBiome){
+		this(color, material, name, tab, Util.INFECTION_ALWAYS, 4, infectMap, infectionBiome, DEFAULT_RANGE, new Aura[0], 0);
+	}
+	
+	public BasicInfectionBlock(Material material, String name, CreativeTabs tab, TriPredicate<World, BlockPos, BlockPos> condition, int infections, Map<BlockStateWrapper, BlockStateWrapper> infectMap, Map<ResourceLocation, ResourceLocation> infectionBiome, BlockArea range, Aura[] auraWeaknesses, int strength, IntersectionEdge edge, boolean hijacker, boolean hijackable){
+		this(material.getMaterialMapColor(), material, name, tab, condition, infections, infectMap, infectionBiome, range, auraWeaknesses, strength, edge, hijacker, hijackable);
+	}
+	
+	public BasicInfectionBlock(Material material, String name, CreativeTabs tab, TriPredicate<World, BlockPos, BlockPos> condition, int infections, Map<BlockStateWrapper, BlockStateWrapper> infectMap, Map<ResourceLocation, ResourceLocation> infectionBiome, BlockArea range, Aura[] auraWeaknesses, int strength){
+		this(material, name, tab, condition, infections, infectMap, infectionBiome, range, auraWeaknesses, strength, DEFAULT, false, false);
+	}
+	
+	public BasicInfectionBlock(Material material, String name, CreativeTabs tab, Map<BlockStateWrapper, BlockStateWrapper> infectMap, Map<ResourceLocation, ResourceLocation> infectionBiome){
+		this(material, name, tab, Util.INFECTION_ALWAYS, 4, infectMap, infectionBiome, DEFAULT_RANGE, new Aura[0], 0);
+	}
+	
+	public BasicInfectionBlock(MapColor color, Material material, String name, CreativeTabs tab, TriPredicate<World, BlockPos, BlockPos> condition, int infections, BlockStateWrapper[] infectables, BlockStateWrapper[] infectTo, Map<ResourceLocation, ResourceLocation> infectionBiome, BlockArea range, Aura[] auraWeaknesses, int strength, IntersectionEdge edge, boolean hijacker, boolean hijackable){
+		this(material.getMaterialMapColor(), material, name, tab, condition, infections, Util.arraysToHashMap(infectables, infectTo), infectionBiome, range, auraWeaknesses, strength, edge, hijacker, hijackable);
+	}
+	
+	public BasicInfectionBlock(MapColor color, Material material, String name, CreativeTabs tab, TriPredicate<World, BlockPos, BlockPos> condition, int infections, BlockStateWrapper[] infectables, BlockStateWrapper[] infectTo, Map<ResourceLocation, ResourceLocation> infectionBiome, BlockArea range, Aura[] auraWeaknesses, int strength){
+		this(color, material, name, tab, condition, infections, Util.arraysToHashMap(infectables, infectTo), infectionBiome, range, auraWeaknesses, strength, DEFAULT, false, false);
+	}
+	
+	public BasicInfectionBlock(MapColor color, Material material, String name, CreativeTabs tab, BlockStateWrapper[] infectables, BlockStateWrapper[] infectTo, Map<ResourceLocation, ResourceLocation> infectionBiome){
+		this(color, material, name, tab, Util.INFECTION_ALWAYS, 4, Util.arraysToHashMap(infectables, infectTo), infectionBiome, DEFAULT_RANGE, new Aura[0], 0);
+	}
+	
+	public BasicInfectionBlock(Material material, String name, CreativeTabs tab, TriPredicate<World, BlockPos, BlockPos> condition, int infections, BlockStateWrapper[] infectables, BlockStateWrapper[] infectTo, Map<ResourceLocation, ResourceLocation> infectionBiome, BlockArea range, Aura[] auraWeaknesses, int strength, IntersectionEdge edge, boolean hijacker, boolean hijackable){
+		this(material.getMaterialMapColor(), material, name, tab, condition, infections, Util.arraysToHashMap(infectables, infectTo), infectionBiome, range, auraWeaknesses, strength, edge, hijacker, hijackable);
+	}
+	
+	public BasicInfectionBlock(Material material, String name, CreativeTabs tab, TriPredicate<World, BlockPos, BlockPos> condition, int infections, BlockStateWrapper[] infectables, BlockStateWrapper[] infectTo, Map<ResourceLocation, ResourceLocation> infectionBiome, BlockArea range, Aura[] auraWeaknesses, int strength){
+		this(material, name, tab, condition, infections, Util.arraysToHashMap(infectables, infectTo), infectionBiome, range, auraWeaknesses, strength, DEFAULT, false, false);
+	}
+	
+	public BasicInfectionBlock(Material material, String name, CreativeTabs tab, BlockStateWrapper[] infectables, BlockStateWrapper[] infectTo, Map<ResourceLocation, ResourceLocation> infectionBiome){
+		this(material, name, tab, Util.INFECTION_ALWAYS, 4, Util.arraysToHashMap(infectables, infectTo), infectionBiome, DEFAULT_RANGE, new Aura[0], 0);
 	}
 	
 	/**
-	 * @return the infections
+	 * Override if the <code>BasicInfectionBlock</code> has multiple auras.
+	 */
+	public boolean hasMultipleAuras(){
+		return false;
+	}
+	
+	/**
+	 * @return the infections.
 	 */
 	public int getInfections() {
 		return infections;
 	}
 
 	/**
-	 * @param infections the infections to set
+	 * @param infections the infections to set.
 	 */
 	public BasicInfectionBlock setInfections(int infections) {
 		if(infections < 0){
@@ -79,29 +138,29 @@ public class BasicInfectionBlock extends BasicBlock {
 	}
 
 	/**
-	 * @return the infectionBiome
+	 * @return the infectionBiome.
 	 */
 	public Map<ResourceLocation, ResourceLocation> getInfectionBiome() {
-		return infectionBiome;
+		return aura.infectionBiome;
 	}
 
 	/**
-	 * @param infectionBiome the infectionBiome to set
+	 * @param infectionBiome the infectionBiome to set.
 	 */
 	public BasicInfectionBlock setInfectionBiome(Map<ResourceLocation, ResourceLocation> infectionBiome) {
-		this.infectionBiome = infectionBiome;
+		aura = new Aura(aura.infectMap, infectionBiome, id);
 		return this;
 	}
 
 	/**
-	 * @return the condition
+	 * @return the condition.
 	 */
 	public TriPredicate<World, BlockPos, BlockPos> getCondition() {
 		return condition;
 	}
 
 	/**
-	 * @param condition the condition to set
+	 * @param condition the condition to set.
 	 */
 	public BasicInfectionBlock setCondition(TriPredicate<World, BlockPos, BlockPos> condition) {
 		if(condition == null){
@@ -112,38 +171,86 @@ public class BasicInfectionBlock extends BasicBlock {
 	}
 
 	/**
-	 * @return the range
+	 * @return the range.
 	 */
-	public BlockArea getRange() {
+	public BlockArea getRange(){
 		return range;
 	}
 
 	/**
-	 * @param range the range to set
-	 * @return 
+	 * @param range the range to set.
 	 */
-	public BasicInfectionBlock setRange(BlockArea range) {
+	public BasicInfectionBlock setRange(BlockArea range){
 		this.range = range;
 		return this;
 	}
 
 	/**
-	 * @return generates a new Aura
+	 * @return the Aura.
 	 */
-	public Aura getAura() {
-		return new Aura(this);
+	public Aura getAura(){
+		return aura;
+	}
+	
+	public BasicInfectionBlock setAura(Aura aura){
+		this.aura = aura;
+		return this;
+	}
+	
+	/**
+	 * @return The ACTUAL aura.
+	 */
+	public Aura getActualAura(IBlockAccess world, BlockPos pos){
+		return getActualAura(world.getBlockState(pos), world, pos);
+	}
+	
+	/**
+	 * @return The ACTUAL aura.
+	 */
+	@SuppressWarnings({ "deprecation", "unused" })
+	public Aura getActualAura(IBlockState state, IBlockAccess world, BlockPos pos){
+		BasicInfectionBlock block = this;
+		Aura aura = this.getAuraFromState(this.getActualState(state, world, pos));
+		double distance = 0;
+		
+		if(/*hijackable*/false){
+			for(Entry<BlockPos, IBlockState> entry : InfUtil.findInfectionBlocksInRange(pos, world).entrySet()){
+				BasicInfectionBlock infBlock = (BasicInfectionBlock)entry.getValue().getBlock();
+				if((infBlock.strength > block.strength) || (infBlock.strength == block.strength && Util.getDistance(pos, entry.getKey()) < distance)){
+					block = infBlock;
+					BlockPos pos2 = entry.getKey();
+					distance = Util.getDistance(pos, pos2);
+					
+					Aura a = block.getActualAura(world, pos2);
+					aura = a.hijack ? getAura() : a;
+				}
+			}
+		}
+		return aura;
+	}
+	
+	/**
+	 * @returns An <code>Aura</code> based on <code>state</code>.
+	 */
+	@Deprecated
+	public Aura getAuraFromState(IBlockState state){
+		return getAura();
+	}
+	
+	@SuppressWarnings("deprecation")
+	public Aura getAuraFromMeta(int meta){
+		return getAuraFromState(this.getStateFromMeta(meta));
 	}
 
 	/**
-	 * @return the auraWeaknesses
+	 * @return the auraWeaknesses.
 	 */
-	public Aura[] getAuraWeaknesses() {
+	public Aura[] getAuraWeaknesses(){
 		return auraWeaknesses;
 	}
 
 	/**
-	 * @param auraWeaknesses the auraWeaknesses to set
-	 * @return 
+	 * @param auraWeaknesses the auraWeaknesses to set.
 	 */
 	public BasicInfectionBlock setAuraWeaknesses(Aura[] auraWeaknesses){
 		if(auraWeaknesses == null){
@@ -154,28 +261,66 @@ public class BasicInfectionBlock extends BasicBlock {
 	}
 
 	/**
-	 * @return the strength
+	 * @return the strength.
 	 */
-	public int getStrength() {
+	public int getStrength(){
 		return strength;
 	}
 
 	/**
-	 * @param strength the strength to set
-	 * @return 
+	 * @param strength the strength to set.
 	 */
-	public BasicInfectionBlock setStrength(int strength) {
+	public BasicInfectionBlock setStrength(int strength){
 		this.strength = strength;
 		return this;
 	}
 	
+	/**
+	 * @return The <code>IntersectionEdge</code>.
+	 */
 	public IntersectionEdge getEdge(){
 		return edge;
 	}
 
+	/**
+	 * @param edge the <code>IntersectionEdge</code> to set.
+	 */
 	public BasicInfectionBlock setEdge(IntersectionEdge edge){
 		this.edge = edge;
 		return this;
+	}
+
+	public Map<BlockStateWrapper, BlockStateWrapper> getInfectMap(){
+		return aura.infectMap;
+	}
+
+	/**
+	 * @param strength the strength to set.
+	 */
+	public void setInfectMap(Map<BlockStateWrapper, BlockStateWrapper> infectMap){
+		aura = new Aura(infectMap, aura.infectionBiome, id);
+	}
+
+	public boolean isHijacker(){
+		return hijacker;
+	}
+
+	/**
+	 * @param strength the strength to set.
+	 */
+	public void setHijacker(boolean hijacker){
+		this.hijacker = hijacker;
+	}
+
+	public boolean isHijackable(){
+		return hijackable;
+	}
+
+	/**
+	 * @param strength the strength to set.
+	 */
+	public void setHijackable(boolean hijackable){
+		this.hijackable = hijackable;
 	}
 
 	/**
@@ -185,75 +330,110 @@ public class BasicInfectionBlock extends BasicBlock {
 	 */
 	@Deprecated
 	public static final void evaluateAll(){
+		String modid = Util.getModid();
+		if(!modid.equals(ModDrCorester.MODID)){
+			ModDrCorester.log.error("The call to BasicInfectionBlock.evaluateAll() is likely not made by Dr Corester but by " + modid + "!");
+			if(ModDrCorester.overreact){
+				throw new BlockStateWrapper.EvaluationException("The call to BasicInfectionBlock.evaluateAll() is likely not made by Dr Corester but by " + modid + "!");
+			}
+			return;
+		}
+		
 		for(Block block : Block.REGISTRY){
 			if(!(block instanceof BasicInfectionBlock)){
 				continue;
 			}
 			BasicInfectionBlock infblock = (BasicInfectionBlock)block;
-			
-			for(Entry<BlockStateWrapper, BlockStateWrapper> entry : infblock.infectMap.entrySet()){
-				if(!entry.getKey().isEvaluated()){
-					entry.getKey().evaluate();
-				}
-				if(!entry.getValue().isEvaluated()){
-					entry.getValue().evaluate();
+
+			for(IBlockState state : infblock.blockState.getValidStates()){
+				for(Entry<BlockStateWrapper, BlockStateWrapper> entry : infblock.getAuraFromState(state).infectMap.entrySet()){
+					if(!entry.getKey().isEvaluated()){
+						entry.getKey().evaluate();
+					}
+					if(!entry.getValue().isEvaluated()){
+						entry.getValue().evaluate();
+					}
 				}
 			}
+			infblock.evaluate();
 		}
+		ModDrCorester.log.info("All BasicInfectionBlocks in registry evaluated!");
 	}
+	
+	/**
+	 * Override to evaluate any other <code>BlockStateWrapper</code>s in the block.
+	 */
+	private void evaluate(){}
 
 	@Override
 	public void updateTick(World world, BlockPos pos, IBlockState state, Random random){
 		if(!world.isRemote){
+			long time1 = System.nanoTime();
 			BlockAreaApplied range = new BlockAreaApplied(this.range, pos);
-			for(int i = 0; i < infections; ++i){
+			Aura aura = getActualAura(world, pos);
+			boolean doBlock = true;
+			boolean doBiome = true;
+			
+			for(int inf = 0; inf < infections; ++inf){
 				BlockPos blockpos = Util.randomBlockInArea(range, random);
+				System.out.println(blockpos);
 				IBlockState iblockstate = world.getBlockState(blockpos);
-				boolean block = true;
-				boolean biome = true;
 				
-				//Ugly code cause of for loop glitches
-				HashSet<IBlockState> infStates = InfUtil.findInfectionBlocksInRange(blockpos, world);
-				Iterator<IBlockState> iterator = infStates.iterator();
-				for(int ii = 0; ii < InfUtil.findInfectionBlocksInRange(blockpos, world).size(); ii++){
-					BasicInfectionBlock infBlock = (BasicInfectionBlock)iterator.next().getBlock();
+				/*for(IBlockState infState : InfUtil.findInfectionBlocksInRange(pos, world).values()){
+					BasicInfectionBlock infBlock = (BasicInfectionBlock)infState.getBlock();
 					
 					if(isBlocked(infBlock)){
-						block = !(getAura().getIntersection(infBlock.getAura())[0] == CONFLICTION && strength < infBlock.strength) || (edge.block.equals(Type.FUZZY) && strength == infBlock.strength);
-						biome = !(getAura().getIntersection(infBlock.getAura())[1] == CONFLICTION && strength < infBlock.strength) || (edge.biome.equals(Type.FUZZY) && strength == infBlock.strength);
+						AuraIntersection[] intersect = aura.getIntersection(infBlock.getAura());
+						boolean weaker = strength < infBlock.strength;
+						boolean sameStr = strength == infBlock.strength;
+						
+						doBlock = !(intersect[0] == CONFLICTION && weaker) || (edge.block.equals(Type.FUZZY) && sameStr);
+						doBiome = !(intersect[1] == CONFLICTION && weaker) || (edge.biome.equals(Type.FUZZY) && sameStr);
 					}
-				}
+				}*/
 				
-				if(block){
-					for(BlockStateWrapper stateWrapper : infectMap.keySet()){
-						if(iblockstate ==  stateWrapper.getState() && condition.test(world, pos, blockpos)){
-							world.setBlockState(blockpos, stateWrapper.getState());
+				if(doBlock){
+					for(Entry<BlockStateWrapper, BlockStateWrapper> stateEntry : aura.infectMap.entrySet()){
+						try{
+							if(iblockstate.equals(stateEntry.getKey().getState()) && condition.test(world, pos, blockpos)){
+								world.setBlockState(blockpos, stateEntry.getValue().getState());
+								break;
+							}
+						}catch(IllegalStateException e){
+							ModDrCorester.log.error("The infectMap of the aura, \"" + aura.name + "\", of the BasicInfectionBlock, \"" + this.getRegistryName() + "\", is not evaluated!", e);
+							if(ModDrCorester.overreact){
+								throw new IllegalStateException("The infectMap of the aura, \"" + aura.name.split(":")[1] + "\", of the BasicInfectionBlock, \"" + this.getRegistryName() + "\", is not evaluated!", e);
+							}
 							break;
 						}
 					}
 				}
     		
-				if(condition.test(world, pos, blockpos) && infectionBiome != null && biome){
-					Chunk c = world.getChunkFromBlockCoords(pos);
-					Chunk cc = world.getChunkFromBlockCoords(blockpos);
-    			
-					byte[] biomeArray1 = c.getBiomeArray();
-					Biome biome1 = Biome.getBiome(biomeArray1[(pos.getZ() & 15) << 4 | (pos.getX() & 15)]);
-					biomeArray1[(pos.getZ() & 15) << 4 | (pos.getX() & 15)] = (byte)Biome.getIdForBiome(Biome.REGISTRY.getObject(infectionBiome.get(biome1)));
-					c.setBiomeArray(biomeArray1);
-    			
-					byte[] biomeArray2 = cc.getBiomeArray();
-					Biome biome2 = Biome.getBiome(biomeArray2[(blockpos.getZ() & 15) << 4 | (blockpos.getX() & 15)]);
-					biomeArray2[(blockpos.getZ() & 15) << 4 | (blockpos.getX() & 15)] = (byte)Biome.getIdForBiome(Biome.REGISTRY.getObject(infectionBiome.get(biome2)));
-					cc.setBiomeArray(biomeArray2);
+				if(condition.test(world, pos, blockpos) && aura.infectionBiome != null && doBiome){				
+					BlockPos changePos = pos;
+					
+					//Iterates twice. Once with changePos = pos and once with changePos = blockpos.
+					for(int i = 0; i < 0; i++){
+						Chunk c = world.getChunkFromBlockCoords(changePos);
+						byte[] biomeArray = c.getBiomeArray();
+						Biome biome = Biome.getBiome(biomeArray[(changePos.getZ() & 15) << 4 | (changePos.getX() & 15)]);
+						byte biomeId = (byte)Biome.getIdForBiome(Biome.REGISTRY.getObject(aura.infectionBiome.get(biome)));
+						biomeArray[(changePos.getZ() & 15) << 4 | (changePos.getX() & 15)] = biomeId == -1 ? (aura.infectionBiome.containsKey(null) ? (byte)Biome.getIdForBiome(Biome.REGISTRY.getObject(aura.infectionBiome.get(null))) : biomeArray[(changePos.getZ() & 15) << 4 | (changePos.getX() & 15)]) : biomeId;
+						c.setBiomeArray(biomeArray);
+						
+						changePos = blockpos;
+					}
 				}
 			}
+			//InfUtil.findInfectionBlocksInRange(pos, world);
+			long time2 = System.nanoTime();
+			System.out.println(time2 - time1);
         }
 	}
 	
 	public final AuraIntersection[] getAuraIntersection(BlockPos pos, World world){
 		Aura aura = getAura();
-		HashSet<IBlockState> states = InfUtil.findInfectionBlocksInRange(pos, world);
+		Collection<IBlockState> states = InfUtil.findInfectionBlocksInRange(pos, world).values();
 		
 		AuraIntersection block = AuraIntersection.NONE;
 		AuraIntersection biome = AuraIntersection.NONE;
@@ -278,20 +458,21 @@ public class BasicInfectionBlock extends BasicBlock {
 		return infBlock.strength >= strength;
 	}
 	
-	public static final class InfUtil{
-		public static HashSet<IBlockState> findInfectionBlocksInRange(BlockPos orgin, World world){
-			BlockAreaApplied area = new BlockAreaApplied(BlockArea.MAX_AREA, orgin);
+	public static final class InfUtil{		
+		
+		public static HashMap<BlockPos, IBlockState> findInfectionBlocksInRange(BlockPos orgin, IBlockAccess world){
+			BlockAreaApplied area = BlockArea.MAX_AREA.apply(orgin);
 			final BlockPos POSITION = new BlockPos(area.bound(EnumFacing.WEST), area.bound(EnumFacing.DOWN), area.bound(EnumFacing.NORTH));
 			BlockPos posZ = POSITION;
 			BlockPos posY = POSITION;
 			BlockPos posX = POSITION;
 			
-			HashSet<IBlockState> out = new HashSet<>();
-			for(int z = 0; z < area.getArea().length(Axis.Z); z++){
-				for(int y = 0; y < area.getArea().length(Axis.Y) ; y++){
-					for(int x = 0; x < area.getArea().length(Axis.X); x++){
-						if(world.getBlockState(posX).getBlock() instanceof BasicInfectionBlock && !posX.equals(orgin)){
-							out.add(world.getBlockState(posX));
+			HashMap<BlockPos, IBlockState> out = new HashMap<>();
+			for(int z = 0; z < 255; z++){
+				for(int y = 0; y < 255 ; y++){
+					for(int x = 0; x < 255; x++){
+						if(world.getBlockState(posX).getBlock() instanceof BasicInfectionBlock && !posX.equals(area.pos) && (Util.findAllBlocks(((BasicInfectionBlock)world.getBlockState(posX).getBlock()).getRange().apply(posX), world).contains(orgin))){
+							out.put(posX, world.getBlockState(posX).getActualState(world, posX));
 						}
 						posX = posX.east();
 					}
@@ -331,28 +512,19 @@ public class BasicInfectionBlock extends BasicBlock {
 			public static enum Type{
 				DEFAULT,//Blocked when strength is less than or equal to the other one.
 				FUZZY;//No blocking when strengths are equal.
-				//HARD;
+				//HARD;//I forgot
 			}
 		}
 	}
 	
-	public static final class Aura{
-		
-		public Aura(BasicInfectionBlock infBlock){
-			this(infBlock, false);
-		}
-		
-		public Aura(BasicInfectionBlock infBlock, boolean hijack){
-			this(infBlock.infectMap, infBlock.infectionBiome, infBlock.getId(), hijack);
-		}
-		
+	public static final class Aura{	
 		public Aura(Map<BlockStateWrapper, BlockStateWrapper> infectMap, Map<ResourceLocation, ResourceLocation> infectionBiome, String name){
 			this(infectMap, infectionBiome, name, false);
 		}
 		
 		public Aura(Map<BlockStateWrapper, BlockStateWrapper> infectMap, Map<ResourceLocation, ResourceLocation> infectionBiome, String name, boolean hijack){
 			this.infectMap = Collections.unmodifiableMap(infectMap);
-			this.infectionBiome = infectionBiome;
+			this.infectionBiome = infectionBiome == null ? null : Collections.unmodifiableMap(infectionBiome);
 			this.name = name;
 			this.hijack = hijack;
 		}
@@ -372,7 +544,7 @@ public class BasicInfectionBlock extends BasicBlock {
 		
 		@Override
 		public String toString() {
-			return "Aura [infectMap=" + infectMap + ", infectionBiome=" + infectionBiome + ", name=" + name + "]";
+			return "Aura:" + name + " [infectMap=" + infectMap + ", infectionBiome=" + infectionBiome + ", name=" + name + "]";
 		}
 		
 		@Override

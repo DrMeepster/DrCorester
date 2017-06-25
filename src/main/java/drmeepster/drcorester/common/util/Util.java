@@ -35,6 +35,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.BiomeDictionary;
@@ -44,6 +45,7 @@ import net.minecraftforge.fml.common.InjectedModContainer;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.common.registry.IForgeRegistryEntry;
 import net.minecraftforge.fml.relauncher.Side;
 
 /**
@@ -155,13 +157,13 @@ public final class Util{
 	}
 	
 	/**
-	 * Sets up an <code>IBasicObject</code>.
+	 * Sets up an <code>IForgeRegistryEntry</code>.
 	 * 
-	 * @param object The <code>IBasicObject</code> to set up.
+	 * @param object The <code>IForgeRegistryEntry</code> to set up.
 	 * @param <T> The type of <code>object</code>.
 	 * @return <code>object</code>
 	 */
-	public static <T extends IBasicObject<?>> T setup(T object){
+	public static <T extends IForgeRegistryEntry<? super T>> T setup(T object){
 		if(object instanceof Item){
 			registerItemModel((Item)object);
 		}
@@ -180,16 +182,42 @@ public final class Util{
 	}
 	
 	/**
-	 * Sets up an <code>IBasicObject</code> and adds it to <code>list</code>.
+	 * Sets up an <code>IForgeRegistryEntry</code> and adds it to <code>list</code>.
 	 * 
-	 * @param object The <code>IBasicObject</code> to set up.
+	 * @param object The <code>IForgeRegistryEntry</code> to set up.
 	 * @param list The <code>List</code> to add <code>object</code>.
 	 * @param <T> The type of <code>object</code> to.
 	 * @return <code>object</code>
 	 */
-	public static <T extends IBasicObject<?>> T setup(T object, List<? super T> list){
+	public static <T extends IForgeRegistryEntry<? super T>> T setup(T object, List<? super T> list){
 		list.add(object);
 		return setup(object);
+	}
+	
+	/**
+	 * Registers an <code>IForgeRegistryEntry</code>. <b>Use a <code>RegistryEvent.Register</code> event handler unless absolutely necessary.</b>
+	 * 
+	 * @param object The <code>IBasicObject</code> to set up.
+	 * @param <T> The type of <code>object</code>.
+	 * @return <code>object</code>
+	 */
+	public static <T extends IForgeRegistryEntry<? super T>> T register(T object){
+		GameRegistry.register(object);
+		if(object instanceof Item){
+			registerItemModel((Item)object);
+		}
+		if(object instanceof IBasicBlock){
+			register(((IBasicBlock)object).getItemBlock());
+		}
+		if(object instanceof ItemBlock){
+			ModDrCorester.log.info(String.format("The ItemBlock with block, \"%s\", has been set  up", object.getRegistryName().toString()));
+			return object;
+		}
+		if(object instanceof BasicBiome){
+			BiomeDictionary.registerBiomeType((BasicBiome)object, ((BasicBiome)object).types);
+		}
+		ModDrCorester.log.info(String.format("The object, \"%s\", has been set up", object.getRegistryName().toString()));
+		return object;
 	}
 	
 	/**
@@ -654,7 +682,7 @@ public final class Util{
 	 * @param world The current world.
 	 * @return The actual state of every block in <code>area</code>
 	 */
-	public static HashSet<IBlockState> findAllBlocks(BlockAreaApplied area, World world){
+	public static HashSet<IBlockState> findAllBlocks(BlockAreaApplied area, IBlockAccess world){
 		final BlockPos POSITION = new BlockPos(area.bound(EnumFacing.WEST), area.bound(EnumFacing.DOWN), area.bound(EnumFacing.NORTH));
 		BlockPos posZ = POSITION;
 		BlockPos posY = POSITION;
@@ -698,5 +726,9 @@ public final class Util{
 			}
 		}
 		return false;
+	}
+	
+	public static double getDistance(BlockPos a, BlockPos b){
+		return Math.sqrt(Math.pow(Math.abs(a.getX() - b.getX()), 2) + Math.pow(Math.abs(a.getY() - b.getY()), 2) + Math.pow(Math.abs(a.getZ() - b.getZ()), 2));
 	}
 }

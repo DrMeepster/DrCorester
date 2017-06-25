@@ -1,6 +1,6 @@
 package drmeepster.drcorester.common.testing;
 
-import static drmeepster.drcorester.common.util.Util.setup;
+import static drmeepster.drcorester.common.util.Util.register;
 
 import drmeepster.drcorester.common.block.BasicBlock;
 import drmeepster.drcorester.common.item.BasicItem;
@@ -9,34 +9,40 @@ import drmeepster.drcorester.common.recipes.NBTShapelessRecipe;
 import drmeepster.drcorester.common.util.Util;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
+/**
+ * Contains all of the testing items for DrCorester. <b>DO NOT ASSUME THESE ARE NOT NULL!</b>
+ * 
+ * @author DrMeepster
+ */
 public class TestMain{
 	
 	public static BasicItem itemTest;
 	public static ItemNBTTest itemNbtTest;
 	
 	public static PotionTest potionTest;
-	public static final TabTesting TAB_TESTING = new TabTesting();
+	public static TabTesting tabTesting;
 	
 	public static BasicBlock blockNormTest;
 	public static BlockTestFalling blockTestFalling;
 	public static BlockTestInfection blockTestInfection;
 	
 	public static void preInit(){
-		itemTest = setup(new BasicItem("test", CreativeTabs.MISC));
-		itemNbtTest = setup(new ItemNBTTest());
+		tabTesting = new TabTesting();
 		
-		potionTest = setup(new PotionTest());
+		itemTest = register(new BasicItem("test", tabTesting));
+		itemNbtTest = register(new ItemNBTTest());
 		
-		blockNormTest = setup(new BasicBlock(MapColor.OBSIDIAN, Material.CLOTH, "test_norm", null));
-		blockTestFalling = setup(new BlockTestFalling());
-		blockTestInfection = setup(new BlockTestInfection());
+		potionTest = register(new PotionTest());
+		
+		blockNormTest = register(new BasicBlock(MapColor.OBSIDIAN, Material.CLOTH, "test_norm", tabTesting));
+		blockTestFalling = register(new BlockTestFalling());
+		blockTestInfection = register(new BlockTestInfection());
 	}
 	
 	public static void init(){

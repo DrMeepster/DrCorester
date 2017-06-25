@@ -8,7 +8,7 @@ public class BlockTestFalling extends BasicBlockFalling {
 	public static final String NAME = "test_falling";
 	
 	public BlockTestFalling() {
-		super(Material.CLOTH, NAME, TestMain.TAB_TESTING);
+		super(Material.CLOTH, NAME, TestMain.tabTesting);
 	}
 
 }

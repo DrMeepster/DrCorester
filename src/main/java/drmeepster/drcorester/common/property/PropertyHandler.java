@@ -9,6 +9,7 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import drmeepster.drcorester.ModDrCorester;
 import drmeepster.drcorester.common.property.PropertyValue.Property;
 import drmeepster.drcorester.common.util.Util;
 import net.minecraftforge.fml.common.Loader;
@@ -49,6 +50,9 @@ public class PropertyHandler extends AbstractPropertyHandler{
 		}
 		if(Loader.instance().hasReachedState(LoaderState.AVAILABLE)){
 			LOG.error("FML has finished loading; PropertyHandler is no longer modifiable.");
+			if(ModDrCorester.overreact){
+				throw new IllegalStateException("FML has finished loading; PropertyHandler is no longer modifiable!");
+			}
 			return;
 		}
 		values.get(modid).add(value);

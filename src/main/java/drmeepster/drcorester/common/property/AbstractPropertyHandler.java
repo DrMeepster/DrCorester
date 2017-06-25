@@ -35,7 +35,7 @@ public abstract class AbstractPropertyHandler{
 	
 	public abstract <T> void setProperty(String modid, PropertyValue<T> value);
 	
-	public PropertyValue<?> getProperty(String modid, String name){
+	public PropertyValue<?> getProperty(String modid, String name){//GradleStart
 		for(Property<?> prop : allowedProperties){
 			if(prop.name == name){
 				return getProperty(modid, prop);

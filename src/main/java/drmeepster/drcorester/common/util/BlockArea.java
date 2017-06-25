@@ -258,6 +258,13 @@ public class BlockArea implements Cloneable{
 	}
 	
 	/**
+	 * @see BlockAreaApplied#BlockAreaApplied(BlockArea, BlockPos)
+	 */
+	public BlockAreaApplied apply(BlockPos pos){
+		return new BlockAreaApplied(this, pos);
+	}
+	
+	/**
 	 * An immutable class that represents an area of blocks at a specific position.
 	 * 
 	 * @author DrMeepster

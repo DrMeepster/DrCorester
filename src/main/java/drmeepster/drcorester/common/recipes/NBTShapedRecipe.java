@@ -80,7 +80,7 @@ public class NBTShapedRecipe extends ShapedRecipes {
 				continue;
 			}
 			
-			if(is2.isItemEqual(inputNbt)){
+			if(is2.isItemEqual(getRecipeOutput())){
 				is1 = is2;
 				tag = is2.getTagCompound() != null ? is2.getTagCompound().copy() : tag;
 			}
