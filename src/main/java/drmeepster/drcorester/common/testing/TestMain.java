@@ -3,6 +3,7 @@ package drmeepster.drcorester.common.testing;
 import static drmeepster.drcorester.common.util.Util.register;
 
 import drmeepster.drcorester.common.block.BasicBlock;
+import drmeepster.drcorester.common.block.BasicBlockFalling;
 import drmeepster.drcorester.common.item.BasicItem;
 import drmeepster.drcorester.common.recipes.NBTShapedRecipe;
 import drmeepster.drcorester.common.recipes.NBTShapelessRecipe;
@@ -29,8 +30,7 @@ public class TestMain{
 	public static TabTesting tabTesting;
 	
 	public static BasicBlock blockNormTest;
-	public static BlockTestFalling blockTestFalling;
-	public static BlockTestInfection blockTestInfection;
+	public static BasicBlockFalling blockTestFalling;
 	
 	public static void preInit(){
 		tabTesting = new TabTesting();
@@ -41,8 +41,7 @@ public class TestMain{
 		potionTest = register(new PotionTest());
 		
 		blockNormTest = register(new BasicBlock(MapColor.OBSIDIAN, Material.CLOTH, "test_norm", tabTesting));
-		blockTestFalling = register(new BlockTestFalling());
-		blockTestInfection = register(new BlockTestInfection());
+		blockTestFalling = register(new BasicBlockFalling(Material.CLOTH, "test_falling", TestMain.tabTesting));
 	}
 	
 	public static void init(){

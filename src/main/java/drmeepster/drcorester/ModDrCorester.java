@@ -3,7 +3,6 @@ package drmeepster.drcorester;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import drmeepster.drcorester.common.block.BasicInfectionBlock;
 import drmeepster.drcorester.common.item.BasicItem;
 import drmeepster.drcorester.common.recipes.NBTShapedRecipe;
 import drmeepster.drcorester.common.recipes.NBTShapelessRecipe;
@@ -79,9 +78,8 @@ public final class ModDrCorester{
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event){
-		BasicInfectionBlock.evaluateAll();
+		//BasicInfectionBlock.evaluateAll();
 	}
 }

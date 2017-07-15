@@ -14,7 +14,6 @@ import java.util.function.BiPredicate;
 import com.google.common.collect.Maps;
 
 import drmeepster.drcorester.ModDrCorester;
-import drmeepster.drcorester.common.block.BasicInfectionBlock;
 import drmeepster.drcorester.common.block.IBasicBlock;
 import drmeepster.drcorester.common.util.BlockArea.BlockAreaApplied;
 import drmeepster.drcorester.common.world.BasicBiome;
