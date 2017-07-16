@@ -13,14 +13,11 @@ public class BasicBlockFalling extends BlockFalling implements IBasicBlock {
 	private String id;
 	private BasicItemBlock itemBlock;
 	
-	/**
-	 * Please extend.
-	 */
-	protected BasicBlockFalling(Material material, String name, CreativeTabs tab){
+	public BasicBlockFalling(Material material, String name, CreativeTabs tab){
 		super(material);
 		setRegistryName(name);
-		itemBlock = new BasicItemBlock(this);
 		setUnlocalizedName(PropertyHandler.INSTANCE.getName(name));
+		itemBlock = BasicItemBlock.getBasicItemBlock(this);
 		if(tab != null){
 			setCreativeTab(tab);
 		}

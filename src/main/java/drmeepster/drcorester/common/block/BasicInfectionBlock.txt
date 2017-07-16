@@ -15,7 +15,6 @@ import java.util.Random;
 import drmeepster.drcorester.ModDrCorester;
 import drmeepster.drcorester.common.block.BasicInfectionBlock.Aura.AuraIntersection;
 import drmeepster.drcorester.common.block.BasicInfectionBlock.InfUtil.IntersectionEdge;
-import drmeepster.drcorester.common.block.BasicInfectionBlock.InfUtil.IntersectionEdge.Type;
 import drmeepster.drcorester.common.util.BlockArea;
 import drmeepster.drcorester.common.util.BlockArea.BlockAreaApplied;
 import drmeepster.drcorester.common.util.BlockStateWrapper;
@@ -27,17 +26,15 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.LoaderState;
 
-public class BasicInfectionBlock extends BasicBlock{//BlockGrass
+@Deprecated
+public class BasicInfectionBlock extends BasicBlock{
 
 	public static final BlockArea DEFAULT_RANGE = new BlockArea((byte)1, (byte)1, (byte)3, (byte)1, (byte)1, (byte)1);
 	

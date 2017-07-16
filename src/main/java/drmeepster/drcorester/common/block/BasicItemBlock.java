@@ -1,6 +1,5 @@
 package drmeepster.drcorester.common.block;
 
-import drmeepster.drcorester.common.property.PropertyHandler;
 import drmeepster.drcorester.common.util.IBasicObject;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -17,7 +16,7 @@ public class BasicItemBlock extends ItemBlock implements IBasicObject<Item> {
 		super((Block)block);
 		this.block = block;
 		this.setRegistryName(block.getRegistryName());
-		this.setUnlocalizedName(PropertyHandler.INSTANCE.getName(block.getId()));
+		this.setUnlocalizedName(((Block)block).getUnlocalizedName());
 	}
 
 	@Override
