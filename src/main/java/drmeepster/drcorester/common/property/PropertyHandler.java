@@ -74,7 +74,7 @@ public class PropertyHandler extends AbstractPropertyHandler{
 	}
 
 	public String getName(String modid, String name){
-		return (boolean)getProperty(modid, "alterName").getValue() ? String.format((String)getProperty(modid, "name").getValue(), modid, name) : name;
+		return (Boolean)getProperty(modid, "alterName").getValue() ? String.format((String)getProperty(modid, "name").getValue(), modid, name) : name;
 	}
 
 	public String getName(String name){
