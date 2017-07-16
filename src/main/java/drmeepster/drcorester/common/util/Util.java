@@ -202,20 +202,17 @@ public final class Util{
 	 */
 	public static <T extends IForgeRegistryEntry<? super T>> T register(T object){
 		GameRegistry.register(object);
-		if(object instanceof Item){
-			registerItemModel((Item)object);
-		}
+		setup(object);
+		
 		if(object instanceof IBasicBlock){
 			register(((IBasicBlock)object).getItemBlock());
 		}
 		if(object instanceof ItemBlock){
-			ModDrCorester.log.info(String.format("The ItemBlock with block, \"%s\", has been set  up", object.getRegistryName().toString()));
+			ModDrCorester.log.info(String.format("The ItemBlock with block, \"%s\", has been registered", object.getRegistryName().toString()));
 			return object;
 		}
-		if(object instanceof BasicBiome){
-			BiomeDictionary.registerBiomeType((BasicBiome)object, ((BasicBiome)object).types);
-		}
-		ModDrCorester.log.info(String.format("The object, \"%s\", has been set up", object.getRegistryName().toString()));
+		
+		ModDrCorester.log.info(String.format("The object, \"%s\", has been registered", object.getRegistryName().toString()));
 		return object;
 	}
 	

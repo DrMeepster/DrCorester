@@ -17,9 +17,9 @@ public class BasicBlock extends Block implements IBasicBlock {
 	public BasicBlock(MapColor color, Material material, String name, CreativeTabs tab){
 		super(material, color);
 		setRegistryName(name);
-		itemBlock = new BasicItemBlock(this);
-		id = name;
 		setUnlocalizedName(PropertyHandler.INSTANCE.getName(name));
+		itemBlock = BasicItemBlock.getBasicItemBlock(this);
+		id = name;
 		if(tab != null){
 			setCreativeTab(tab);
 		}
