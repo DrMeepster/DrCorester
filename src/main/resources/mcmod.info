@@ -1,6 +1,6 @@
 [{
   "modid": "drcorester",
-  "name": "Dr Corester",
+  "name": "DrCorester",
   "description": "A library for my mods.",
   "version": "${version}",
   "mcversion": "${mcversion}",
