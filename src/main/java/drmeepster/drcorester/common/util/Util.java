@@ -15,13 +15,16 @@ import com.google.common.collect.Maps;
 
 import drmeepster.drcorester.ModDrCorester;
 import drmeepster.drcorester.common.block.IBasicBlock;
+import drmeepster.drcorester.common.entity.IBasicEntity;
 import drmeepster.drcorester.common.util.BlockArea.BlockAreaApplied;
+import drmeepster.drcorester.common.util.interfaces.InvalidInterfaceTypeException;
 import drmeepster.drcorester.common.world.BasicBiome;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.player.EntityPlayer;
@@ -43,6 +46,7 @@ import net.minecraftforge.fml.common.FMLContainer;
 import net.minecraftforge.fml.common.InjectedModContainer;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.common.registry.IForgeRegistryEntry;
 import net.minecraftforge.fml.relauncher.Side;
@@ -60,7 +64,7 @@ public final class Util{
 	public static final char SECTION_SIGN = '\u00A7';
 	
 	/**
-	 * The <code>DamageSource</code> used by <code>wrath(EntityLivingBase)<code/> and <code>wrath(EntityLivingBase, Achievement)<code/>.
+	 * The <code>DamageSource</code> used by <code>wrath(EntityLivingBase)</code> and <code>wrath(EntityLivingBase, Achievement)</code>.
 	 * 
 	 * @see Util#wrath(EntityLivingBase)
 	 * @see Util#wrath(EntityLivingBase, Achievement)
@@ -106,16 +110,6 @@ public final class Util{
 	 */
 	public static final BiPredicate<Boolean, Boolean> XNOR = (a, b) -> ((a && b) || (!a && !b));
 	
-	/**
-	 * A TriPredicate that matches the required type of a <code>BasicInfectionBlock</code>'s <code>condition</code> field but always returns <code>true</code>.
-	 * 
-	 * @param world Does nothing
-	 * @param pos Does nothing
-	 * @param randPos Does nothing
-	 * @see BasicInfectionBlock
-	 */
-	public static final TriPredicate<World, BlockPos, BlockPos> INFECTION_ALWAYS = (World world, BlockPos pos, BlockPos randPos) -> true;
-	
 	/*LAMBADA EXPRESSIONS END*/
 	
 	/**
@@ -128,7 +122,7 @@ public final class Util{
 	 * 
 	 * @param player The entity to strike and kill
 	 * @param onWrath The achievement to grant
-	 * @see
+	 * @see #wrath(EntityLivingBase)
 	 */
 	public static void wrath(EntityLivingBase player, Achievement onWrath){
 		if(player instanceof EntityPlayer && onWrath != null){
@@ -180,6 +174,11 @@ public final class Util{
 		return object;
 	}
 	
+	public static <T extends Entity> T setup(T object){
+		
+		return object;
+	}
+	
 	/**
 	 * Sets up an <code>IForgeRegistryEntry</code> and adds it to <code>list</code>.
 	 * 
@@ -196,8 +195,8 @@ public final class Util{
 	/**
 	 * Registers an <code>IForgeRegistryEntry</code>. <b>Use a <code>RegistryEvent.Register</code> event handler unless absolutely necessary.</b>
 	 * 
-	 * @param object The <code>IBasicObject</code> to set up.
-	 * @param <T> The type of <code>object</code>.
+	 * @param object The <code>IBasicObject</code> to register
+	 * @param <T> The type of <code>object</code>
 	 * @return <code>object</code>
 	 */
 	public static <T extends IForgeRegistryEntry<? super T>> T register(T object){
@@ -214,6 +213,61 @@ public final class Util{
 		
 		ModDrCorester.log.info(String.format("The object, \"%s\", has been registered", object.getRegistryName().toString()));
 		return object;
+	}
+	
+	/**
+	 * Registers an <code>IBasicEntity</code>.
+	 * 
+	 * @param entity The <code>IBasicEntity</code> to register. <b>MUST BE AN INSTANCE OF <code>Entity</code></b>
+	 * @param trackingRange Unknown
+	 * @param updateFrequency Unknown. Recommended value: 1
+	 * @param sendsVelocityUpdates Unknown. Recommended value: true
+	 * @return <code>entity</code>
+	 */
+	public static <T extends IBasicEntity> T register(T entity, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates){
+		if(!(entity instanceof Entity)){
+			throw new InvalidInterfaceTypeException("An IBasicEntity should extend Entity!");
+		}
+		
+		EntityRegistry.registerModEntity(((Entity)entity).getClass(), entity.getName(), 0, getMod(entity.getId().getResourceDomain()).getMod(), trackingRange, updateFrequency, sendsVelocityUpdates);
+		
+		return entity;
+	}
+
+	/**
+	 * Registers an <code>IBasicEntity</code> and its spawn egg.
+	 * 
+	 * @param entity The <code>IBasicEntity</code> to register. <b>MUST BE AN INSTANCE OF <code>Entity</code></b>
+	 * @param trackingRange Unknown
+	 * @param updateFrequency Unknown. Recommended value: 1
+	 * @param sendsVelocityUpdates Unknown. Recommended value: true
+	 * @param eggPrimary The primary color of the spawn egg
+	 * @param eggSecondary The secondary color of the spawn egg
+	 * @return <code>entity</code>
+	 */
+	public static <T extends IBasicEntity> T register(T entity, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates, int eggPrimary, int eggSecondary){
+		register(entity, trackingRange, updateFrequency, sendsVelocityUpdates);
+		registerEgg(entity, eggPrimary, eggSecondary, 0);
+		return entity;
+	}
+	
+	/**
+	 * Registers an <code>IBasicEntity</code>'s spawn egg.
+	 * 
+	 * @param entity The <code>IBasicEntity</code> to have its spawn egg registered. Make sure it is already registered. <b>MUST BE AN INSTANCE OF <code>Entity</code></b>
+	 * @param primary The primary color of the spawn egg
+	 * @param secondary The secondary color of the spawn egg
+	 */
+	public static <T extends IBasicEntity> void registerEgg(T entity, int primary, int secondary){
+		if(!(entity instanceof Entity)){
+			throw new InvalidInterfaceTypeException("An IBasicEntity should extend Entity!");
+		}
+		
+		registerEgg(entity, primary, secondary, 0);
+	}
+	
+	private static <T extends IBasicEntity> void registerEgg(T entity, int primary, int secondary, int dummy){
+		EntityRegistry.registerEgg(((Entity)entity).getClass(), primary, secondary);
 	}
 	
 	/**
@@ -724,7 +778,29 @@ public final class Util{
 		return false;
 	}
 	
+	/**
+	 * Gets the distance between two positions.
+	 * 
+	 * @param a position 1
+	 * @param b position 2
+	 * @return the distance between two positions.
+	 */
 	public static double getDistance(BlockPos a, BlockPos b){
 		return Math.sqrt(Math.pow(Math.abs(a.getX() - b.getX()), 2) + Math.pow(Math.abs(a.getY() - b.getY()), 2) + Math.pow(Math.abs(a.getZ() - b.getZ()), 2));
+	}
+	
+	/**
+	 * Gets the <code>ModContainer</code> with the modid of <code>modid</code>.
+	 * 
+	 * @param modid The modid to find the mod for
+	 * @return The mod with the modid of <code>modid</code>
+	 */
+	public static ModContainer getMod(String modid){
+		for(ModContainer container : Loader.instance().getModList()){
+			if(container.getModId().equals(modid)){
+				return container;
+			}
+		}
+		return null;
 	}
 }
