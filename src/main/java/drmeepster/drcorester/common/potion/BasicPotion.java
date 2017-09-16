@@ -1,7 +1,7 @@
 package drmeepster.drcorester.common.potion;
 
 import drmeepster.drcorester.common.property.PropertyHandler;
-import drmeepster.drcorester.common.util.IBasicObject;
+import drmeepster.drcorester.common.util.interfaces.IBasicObject;
 import drmeepster.drcorester.common.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;

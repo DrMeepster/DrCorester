@@ -1,6 +1,6 @@
 package drmeepster.drcorester.common.world;
 
-import drmeepster.drcorester.common.util.IBasicObject;
+import drmeepster.drcorester.common.util.interfaces.IBasicObject;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.BiomeDictionary.Type;
 

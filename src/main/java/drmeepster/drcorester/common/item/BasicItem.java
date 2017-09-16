@@ -1,7 +1,7 @@
 package drmeepster.drcorester.common.item;
 
 import drmeepster.drcorester.common.property.PropertyHandler;
-import drmeepster.drcorester.common.util.IBasicObject;
+import drmeepster.drcorester.common.util.interfaces.IBasicObject;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 
