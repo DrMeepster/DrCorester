@@ -1,0 +1,12 @@
+drmeepster.drcorester
+drmeepster.drcorester.common.block
+drmeepster.drcorester.common.entity
+drmeepster.drcorester.common.item
+drmeepster.drcorester.common.potion
+drmeepster.drcorester.common.property
+drmeepster.drcorester.common.recipes
+drmeepster.drcorester.common.testing
+drmeepster.drcorester.common.util
+drmeepster.drcorester.common.util.interfaces
+drmeepster.drcorester.common.world
+drmeepster.drcorester.proxy
