@@ -149,7 +149,7 @@ public final class Util{
 		EntityLightningBolt lightning;
 		for(int i = 0; i < 5; i++){
 			lightning = new EntityLightningBolt(world, playerPos.getX(), playerPos.getY(), playerPos.getZ(), true);
-			world.spawnEntity(lightning);
+			world.spawnEntityInWorld(lightning);
 		}
 
 		player.attackEntityFrom(DAMAGE_WRATH, Float.MAX_VALUE);
@@ -174,7 +174,7 @@ public final class Util{
 			return object;
 		}
 		if(object instanceof BasicBiome){
-			BiomeDictionary.addTypes((BasicBiome)object, ((BasicBiome)object).types);
+			BiomeDictionary.registerBiomeType((BasicBiome)object, ((BasicBiome)object).types);
 		}
 		ModDrCorester.log.info(String.format("The object, \"%s\", has been set up", object.getRegistryName().toString()));
 		return object;
@@ -613,7 +613,7 @@ public final class Util{
 				return 256;
 			}
 			//Just in case a mod changes max height limit
-			return Minecraft.getMinecraft().world.getHeight();
+			return Minecraft.getMinecraft().theWorld.getHeight();
 		case DOWN:
 			return 0;
 		case SOUTH:

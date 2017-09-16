@@ -1,7 +1,7 @@
 package drmeepster.drcorester.common.testing;
 
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.Item;
 
 public class TabTesting extends CreativeTabs {
 
@@ -12,8 +12,8 @@ public class TabTesting extends CreativeTabs {
 	}
 
 	@Override
-	public ItemStack getTabIconItem() {
-		return new ItemStack(TestMain.itemNbtTest);
+	public Item getTabIconItem() {
+		return TestMain.itemNbtTest;
 	}
 
 }

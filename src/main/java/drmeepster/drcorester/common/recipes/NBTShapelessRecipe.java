@@ -62,7 +62,7 @@ public class NBTShapelessRecipe extends ShapelessRecipes {
 			}
 		}
 		tag.merge(this.getRecipeOutput().getTagCompound().copy());
-		is1.setCount(inputNbt.getCount());
+		is1.stackSize = inputNbt.stackSize;
 		return Util.addNbtData(is1, tag);
     }
 }
