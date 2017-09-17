@@ -18,6 +18,7 @@ import drmeepster.drcorester.common.block.IBasicBlock;
 import drmeepster.drcorester.common.entity.IBasicEntity;
 import drmeepster.drcorester.common.util.BlockArea.BlockAreaApplied;
 import drmeepster.drcorester.common.world.BasicBiome;
+import drmeepster.drcorester.proxy.ClientProxy;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.MapColor;
