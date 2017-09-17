@@ -14,6 +14,11 @@ public class ClientProxy implements IProxy{
 	public void registerItemRenderer(Item item, int meta, ResourceLocation resloc) {
 		ModelLoader.setCustomModelResourceLocation(item, meta, new ModelResourceLocation(resloc.toString(), "inventory"));
 	}
+	
+	/*@Override
+	public <T extends Entity> void registerEntityRenderFactory(Class<T> clazz, IRenderFactory<? super T> factory){
+		RenderingRegistry.<T>registerEntityRenderingHandler(clazz, factory);
+	}*/
 
 	@Override
 	public void preInit() {

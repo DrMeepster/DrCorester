@@ -6,6 +6,7 @@ import net.minecraft.util.ResourceLocation;
 public interface IProxy{
 	
 	public default void registerItemRenderer(Item item, int meta, ResourceLocation resloc){}
+	//public default <T extends Entity> void registerEntityRenderFactory(Class<T> clazz, IRenderFactory<? super T> factory){}
 	
 	public void preInit();
 

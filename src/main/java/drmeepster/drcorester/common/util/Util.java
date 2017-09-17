@@ -17,7 +17,6 @@ import drmeepster.drcorester.ModDrCorester;
 import drmeepster.drcorester.common.block.IBasicBlock;
 import drmeepster.drcorester.common.entity.IBasicEntity;
 import drmeepster.drcorester.common.util.BlockArea.BlockAreaApplied;
-import drmeepster.drcorester.common.util.interfaces.InvalidInterfaceTypeException;
 import drmeepster.drcorester.common.world.BasicBiome;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
@@ -41,6 +40,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.BiomeDictionary;
+import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.FMLContainer;
 import net.minecraftforge.fml.common.InjectedModContainer;
@@ -174,11 +174,6 @@ public final class Util{
 		return object;
 	}
 	
-	public static <T extends Entity> T setup(T object){
-		
-		return object;
-	}
-	
 	/**
 	 * Sets up an <code>IForgeRegistryEntry</code> and adds it to <code>list</code>.
 	 * 
@@ -224,13 +219,8 @@ public final class Util{
 	 * @param sendsVelocityUpdates Unknown. Recommended value: true
 	 * @return <code>entity</code>
 	 */
-	public static <T extends IBasicEntity> T register(T entity, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates){
-		if(!(entity instanceof Entity)){
-			throw new InvalidInterfaceTypeException("An IBasicEntity should extend Entity!");
-		}
-		
-		EntityRegistry.registerModEntity(((Entity)entity).getClass(), entity.getName(), 0, getMod(entity.getId().getResourceDomain()).getMod(), trackingRange, updateFrequency, sendsVelocityUpdates);
-		
+	public static <T extends Entity & IBasicEntity> T register(T entity, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates){
+		EntityRegistry.registerModEntity(((Entity)entity).getClass(), entity.getName(), 0, getMod(entity.getId().getResourceDomain()), trackingRange, updateFrequency, sendsVelocityUpdates);
 		return entity;
 	}
 
@@ -245,9 +235,10 @@ public final class Util{
 	 * @param eggSecondary The secondary color of the spawn egg
 	 * @return <code>entity</code>
 	 */
-	public static <T extends IBasicEntity> T register(T entity, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates, int eggPrimary, int eggSecondary){
+	public static <T extends Entity & IBasicEntity> T register(T entity, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates, int eggPrimary, int eggSecondary, IRenderFactory<? super T> factory){
 		register(entity, trackingRange, updateFrequency, sendsVelocityUpdates);
-		registerEgg(entity, eggPrimary, eggSecondary, 0);
+		registerEgg(entity, eggPrimary, eggSecondary);
+		//registerEntityRendering(entity, factory);
 		return entity;
 	}
 	
@@ -258,17 +249,19 @@ public final class Util{
 	 * @param primary The primary color of the spawn egg
 	 * @param secondary The secondary color of the spawn egg
 	 */
-	public static <T extends IBasicEntity> void registerEgg(T entity, int primary, int secondary){
-		if(!(entity instanceof Entity)){
-			throw new InvalidInterfaceTypeException("An IBasicEntity should extend Entity!");
-		}
-		
-		registerEgg(entity, primary, secondary, 0);
+	public static <T extends Entity> void registerEgg(T entity, int primary, int secondary){
+		EntityRegistry.registerEgg(entity.getClass(), primary, secondary);
 	}
 	
-	private static <T extends IBasicEntity> void registerEgg(T entity, int primary, int secondary, int dummy){
-		EntityRegistry.registerEgg(((Entity)entity).getClass(), primary, secondary);
-	}
+	/*
+	 * Registers the renderer of <code>entity</code>.
+	 * 
+	 * @param entity The <code>Entity</code> to have its renderer registered.
+	 /
+	@SuppressWarnings("unchecked")
+	public static <T extends Entity> void registerEntityRendering(T entity, IRenderFactory<? super T> factory){
+		((ClientProxy)ModDrCorester.proxy).<T>registerEntityRenderFactory((Class<T>)entity.getClass(), factory);
+	}*/
 	
 	/**
 	 * Registers <code>item</code>'s model.
