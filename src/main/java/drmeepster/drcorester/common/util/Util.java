@@ -11,14 +11,15 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.function.BiPredicate;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Maps;
 
 import drmeepster.drcorester.ModDrCorester;
 import drmeepster.drcorester.common.block.IBasicBlock;
-import drmeepster.drcorester.common.entity.IBasicEntity;
 import drmeepster.drcorester.common.util.BlockArea.BlockAreaApplied;
-import drmeepster.drcorester.common.util.interfaces.InvalidInterfaceTypeException;
 import drmeepster.drcorester.common.world.BasicBiome;
+import drmeepster.drcorester.proxy.ClientProxy;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.MapColor;
@@ -36,15 +37,18 @@ import net.minecraft.stats.Achievement;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.BiomeDictionary;
+import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.FMLContainer;
 import net.minecraftforge.fml.common.InjectedModContainer;
 import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.LoaderState;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -143,7 +147,7 @@ public final class Util{
 		EntityLightningBolt lightning;
 		for(int i = 0; i < 5; i++){
 			lightning = new EntityLightningBolt(world, playerPos.getX(), playerPos.getY(), playerPos.getZ(), true);
-			world.spawnEntityInWorld(lightning);
+			world.spawnEntity(lightning);
 		}
 
 		player.attackEntityFrom(DAMAGE_WRATH, Float.MAX_VALUE);
@@ -168,14 +172,9 @@ public final class Util{
 			return object;
 		}
 		if(object instanceof BasicBiome){
-			BiomeDictionary.registerBiomeType((BasicBiome)object, ((BasicBiome)object).types);
+			BiomeDictionary.addTypes((BasicBiome)object, ((BasicBiome)object).types);
 		}
 		ModDrCorester.log.info(String.format("The object, \"%s\", has been set up", object.getRegistryName().toString()));
-		return object;
-	}
-	
-	public static <T extends Entity> T setup(T object){
-		
 		return object;
 	}
 	
@@ -224,31 +223,31 @@ public final class Util{
 	 * @param sendsVelocityUpdates Unknown. Recommended value: true
 	 * @return <code>entity</code>
 	 */
-	public static <T extends IBasicEntity> T register(T entity, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates){
-		if(!(entity instanceof Entity)){
-			throw new InvalidInterfaceTypeException("An IBasicEntity should extend Entity!");
-		}
-		
-		EntityRegistry.registerModEntity(((Entity)entity).getClass(), entity.getName(), 0, getMod(entity.getId().getResourceDomain()).getMod(), trackingRange, updateFrequency, sendsVelocityUpdates);
-		
-		return entity;
+	public static <T extends Entity> void register(Class<T> clazz, ResourceLocation id, String name, int numberId, Object mod, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates){
+		EntityRegistry.registerModEntity(id, clazz, name, numberId, mod, trackingRange, updateFrequency, sendsVelocityUpdates);
 	}
 
 	/**
-	 * Registers an <code>IBasicEntity</code> and its spawn egg.
+	 * Registers an <code>Entity</code> and its spawn egg.<br>
+	 * If <code>factory</code> is null or the current loading state is not preinitalization, <code>factory</code> will not be registered.
 	 * 
-	 * @param entity The <code>IBasicEntity</code> to register. <b>MUST BE AN INSTANCE OF <code>Entity</code></b>
-	 * @param trackingRange Unknown
-	 * @param updateFrequency Unknown. Recommended value: 1
-	 * @param sendsVelocityUpdates Unknown. Recommended value: true
+	 * @param entity The <code>Entity</code> to register
+	 * @param trackingRange
+	 * @param updateFrequency
+	 * @param sendsVelocityUpdates
 	 * @param eggPrimary The primary color of the spawn egg
 	 * @param eggSecondary The secondary color of the spawn egg
+	 * @param factory The <code>IRenderFactory</code> of <code>entity</code>. May be null
 	 * @return <code>entity</code>
 	 */
-	public static <T extends IBasicEntity> T register(T entity, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates, int eggPrimary, int eggSecondary){
-		register(entity, trackingRange, updateFrequency, sendsVelocityUpdates);
-		registerEgg(entity, eggPrimary, eggSecondary, 0);
-		return entity;
+	public static <T extends Entity> void register(Class<T> clazz, ResourceLocation id, String name, int numberId, Object mod, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates, int eggPrimary, int eggSecondary, @Nullable IRenderFactory<? super T> factory){
+		register(clazz, id, name, numberId, mod, trackingRange, updateFrequency, sendsVelocityUpdates);
+		registerEgg(id, eggPrimary, eggSecondary);
+		if(factory != null){
+			if(Loader.instance().isInState(LoaderState.PREINITIALIZATION)){
+				registerEntityRendering(clazz, factory);
+			}
+		}
 	}
 	
 	/**
@@ -258,16 +257,17 @@ public final class Util{
 	 * @param primary The primary color of the spawn egg
 	 * @param secondary The secondary color of the spawn egg
 	 */
-	public static <T extends IBasicEntity> void registerEgg(T entity, int primary, int secondary){
-		if(!(entity instanceof Entity)){
-			throw new InvalidInterfaceTypeException("An IBasicEntity should extend Entity!");
-		}
-		
-		registerEgg(entity, primary, secondary, 0);
+	public static <T extends Entity> void registerEgg(ResourceLocation id, int primary, int secondary){
+		EntityRegistry.registerEgg(id, primary, secondary);
 	}
 	
-	private static <T extends IBasicEntity> void registerEgg(T entity, int primary, int secondary, int dummy){
-		EntityRegistry.registerEgg(((Entity)entity).getClass(), primary, secondary);
+	/**
+	 * Registers the renderer of <code>entity</code>.
+	 * 
+	 * @param entity The <code>Entity</code> to have its renderer registered.
+	 */
+	public static <T extends Entity> void registerEntityRendering(Class<T> clazz, IRenderFactory<? super T> factory){
+		((ClientProxy)ModDrCorester.proxy).<T>registerEntityRenderFactory(clazz, factory);
 	}
 	
 	/**
@@ -667,7 +667,7 @@ public final class Util{
 				return 256;
 			}
 			//Just in case a mod changes max height limit
-			return Minecraft.getMinecraft().theWorld.getHeight();
+			return Minecraft.getMinecraft().world.getHeight();
 		case DOWN:
 			return 0;
 		case SOUTH:

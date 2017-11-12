@@ -14,6 +14,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -25,6 +26,7 @@ import net.minecraftforge.oredict.RecipeSorter.Category;
 public final class ModDrCorester{
 	
 	public static final String MODID = "drcorester";
+	public static final String LOGGER_NAME = "DrCorester";
 	
 	public static boolean devStuff;
 	public static boolean careAboutJava;
@@ -33,18 +35,20 @@ public final class ModDrCorester{
 	@SidedProxy(clientSide = "drmeepster.drcorester.proxy.ClientProxy", serverSide = "drmeepster.drcorester.proxy.ServerProxy")
 	public static IProxy proxy;
 	
+	@Instance
+	public static ModDrCorester instance;
+	
 	public static BasicItem placeholder;
 	
 	public static Logger log;
 
 	public ModDrCorester(){
 		placeholder = new BasicItem("placeholder", MODID);
+		log = LogManager.getLogger(LOGGER_NAME);
 	}
 	
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event){
-		log = LogManager.getLogger(event.getModMetadata().name);
-		
 		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
 		config.load();
 		ConfigCategory dev = config.getCategory("dev");
@@ -80,6 +84,6 @@ public final class ModDrCorester{
 
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event){
-		//BasicInfectionBlock.evaluateAll();
+		
 	}
 }

@@ -32,7 +32,6 @@ public class NBTShapelessRecipe extends ShapelessRecipes {
 	/**
 	 * @param inputList The list of crafting {@code ItemStack}s including {@code outputStack}.
 	 * @param outputStack The {@code ItemStack} that is given {@code tag}.
-	 * @param tag The {@code NBTTagCompound} to change the output {@code ItemStack} with.
 	 * @param condition The condition that needs to be true when given {@code outputStack}. May be {@code null}.
 	 */
 	public NBTShapelessRecipe(ItemStack[] inputList, ItemStack outputStack, Predicate<ItemStack> condition){
@@ -62,7 +61,7 @@ public class NBTShapelessRecipe extends ShapelessRecipes {
 			}
 		}
 		tag.merge(this.getRecipeOutput().getTagCompound().copy());
-		is1.stackSize = inputNbt.stackSize;
+		is1.setCount(inputNbt.getCount());
 		return Util.addNbtData(is1, tag);
     }
 }

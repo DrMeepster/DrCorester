@@ -11,7 +11,7 @@ import drmeepster.drcorester.common.property.PropertyValue.Property;
 
 /**
  * Abstract class for handling the property system.
- * This works by having a <code>Map</code> with modids as keys and <code>Set</codes>s of <code>PropertyValues</code> as values.
+ * This works by having a <code>Map</code> with modids as keys and <code>Set</code>s of <code>PropertyValues</code> as values.
  * 
  * @author DrMeepster
  */

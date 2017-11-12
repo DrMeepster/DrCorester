@@ -1,6 +1,7 @@
 package drmeepster.drcorester.common.block;
 
-import drmeepster.drcorester.common.util.IBasicObject;
+import drmeepster.drcorester.common.util.interfaces.IBasicObject;
+import drmeepster.drcorester.common.util.interfaces.InvalidInterfaceTypeException;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -35,7 +36,7 @@ public class BasicItemBlock extends ItemBlock implements IBasicObject<Item> {
 	 */
 	public static BasicItemBlock getBasicItemBlock(IBasicBlock block){
 		if(!(block instanceof Block)){
-			throw new IllegalArgumentException("Argument \"block\" must be a block!");
+			throw new InvalidInterfaceTypeException("An IBasicBlock should extend Block!");
 		}
 		return new BasicItemBlock(block);
 	}

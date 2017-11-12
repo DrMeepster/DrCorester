@@ -2,6 +2,8 @@ package drmeepster.drcorester.common.testing;
 
 import static drmeepster.drcorester.common.util.Util.register;
 
+import drmeepster.drcorester.ModDrCorester;
+import drmeepster.drcorester.client.testing.RenderEntityTest;
 import drmeepster.drcorester.common.block.BasicBlock;
 import drmeepster.drcorester.common.block.BasicBlockFalling;
 import drmeepster.drcorester.common.item.BasicItem;
@@ -31,7 +33,7 @@ public class TestMain{
 	
 	public static BasicBlock blockNormTest;
 	public static BasicBlockFalling blockTestFalling;
-	
+
 	public static void preInit(){
 		tabTesting = new TabTesting();
 		
@@ -42,6 +44,8 @@ public class TestMain{
 		
 		blockNormTest = register(new BasicBlock(MapColor.OBSIDIAN, Material.CLOTH, "test_norm", tabTesting));
 		blockTestFalling = register(new BasicBlockFalling(Material.CLOTH, "test_falling", TestMain.tabTesting));
+	
+		register(EntityTest.class, EntityTest.ID, "test", 0, ModDrCorester.instance, 0, 1, false, 0x5500ff, 0x000000, RenderEntityTest.factory);
 	}
 	
 	public static void init(){
